@@ -10,11 +10,11 @@ library(Hmisc)
 shanghai2014.df <- foreign::read.spss("C:/Users/user/Desktop/1.上海_2014r2.sav")
 
 #with haven
-shanghai2014.df <- haven::read_spss("c:/Users/user/Desktop/1.上海_2014r2.sav")
+shanghai2014.df <- as.data.frame(haven::read_spss("c:/Users/user/Desktop/1.上海_2014r2.sav"))
 
 #summary with stargazer
 df <- attitude
-stargazer(df, type = "html", out = "~/summary.html")
+stargazer(shanghai2014.df, type = "html", out = "~/summary.html")
 
 #with summarytools
 p <- dfSummary(df, style = "html", omit.headings = TRUE)
