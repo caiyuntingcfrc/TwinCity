@@ -4,9 +4,32 @@ library(tidyverse)
 library(haven)
 library(summarytools)
 library(stargazer)
+library(gridExtra)
+
+# set global options of summarytools
+st_options()
+st_options("style", "grid")
+st_options("round.digits", 4)
+st_options("freq.report.nas", F)
 
 # load .sav file with haven
-twin.first.df <- read_spss("Twin Cities/5.2014上海分層隨機抽樣_2018雙北一年級合併資料檔180809.sav")
+twin.first.df <- read_spss("Twin Cities/3.雙城正式_全年級20180704final_han&Lung.sav")
+# d <- twin.first.df$Ft9
+
+# Ft9 care_after
+df <- twin.first.df %>% filter(Ft9 %in% c(1, 2, 3)) %>% filter(Bd21 %in% c(1, 2)) %>% group_by(Ft9)
+
+# ctable care_after
+c <- ctable(df$Bd21, df$Ft9) %>% view()
+
+# working hours
+df %>% filter(!is.na(Bd28hr)) %>% filter(!(Bd28hr %in% c(96, 97, 98))) %>% 
+        filter(!is.na(Bd33hr)) %>% filter(!(Bd33hr %in% c(96, 97, 98))) %>%
+        summarise_at(vars(Bd28hr, Bd33hr), funs(mean)) %>% data.frame() %>% 
+        round(digits = 2) %>% 
+        stargazer(style = "ajs", type = "html", summary = F, out = "Twin Cities/workinghours.html")
+
+#
 
 # summary with stargazer
 stargazer(twin.first.df, type = "html", out = "~/summary.html")
