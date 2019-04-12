@@ -6,9 +6,9 @@ l <- c("tidyverse", "stargazer", "summarytools", "sjlabelled", "ggplot2",
 lapply(l, require, character.only = TRUE); rm(l)
 
 #read .sav files
-df_shanghai_2016_all <- read_sav("Twin Cities/2.Children2016.sav") %>% remove_all_labels()
+ df_shanghai_2016_all <- read_sav("Twin Cities/2.Children2016.sav")
 # save file
-save(df_shanghai_2016_all, file = "Twin Cities/df_shanghai_2016_all.RData")
+ save(df_shanghai_2016_all, file = "Twin Cities/df_shanghai_2016_all.RData")
 # read RData file
 load("Twin Cities/df_shanghai_2016_all.RData")
 
@@ -45,47 +45,71 @@ xl <- read.csv(path, col.names = name, colClasses = type) %>%
 
 # left_join by D_ID
 xl <- left_join(xl, p_2016, by = "D_ID")
-# attempted sample size that is larger than population.
-# find maximum differences
-# z <- xl[with(xl, size_insch > Freq_2016), ] %>% 
-#         .[which.max(with(., size_insch - Freq_2016)), ]
-# calculate adjusted sample size
+
+# save xl
+save(xl, file = "Twin Cities/03. 上海分層抽樣/xl.RData")
+
+# load
+load("Twin Cities/03. 上海分層抽樣/xl.RData")
+
+# calculate sample size by each district
 xl <- xl %>% mutate(
         adj_N = Freq_2016 / prop_insch
         )
-# adj <- with(z, Freq_2016 / prop_insch) %>% round(., 0)
-a <- xl %>% .[which(with(., adj_N < nrow(df_shanghai_2016_all) & adj_N > min(adj_N))), ]; a
-adj <- a$adj_N
+adj <- xl %>% .[which(with(., adj_N < nrow(df_shanghai_2016_all) & adj_N > min(adj_N))), ] %>% 
+        .$adj_N; adj
 
-# calculate adjusted n in each district
+# calculate adjusted n in each district. adj = 1124
 xl <- xl %>%  
         mutate(
                 adj_size = round(adj * prop_insch)
                 ) %>% 
         .[order(.$D_ID), ]
+
+# determine in which district that the adjusted sample size is larger than original one.
+b <- xl %>% .[which(with(., adj_size >= Freq_2016)), ] %>% .$D_ID
+
+# skip the district (all of the cases will be sampled)
+df <- df_shanghai_2016_all %>% filter(!(D_ID %in% b)) %>% 
+        .[order(.$D_ID), ] %>% group_by(D_ID)
+df_ <- df_shanghai_2016_all %>% filter(D_ID %in% b) %>% 
+        .[order(.$D_ID), ] %>% group_by(D_ID)
+x <- xl %>% filter(!(D_ID %in% b))
+
+# PPS
+l <- vector("list", nrow(x))
+for(i in 1:nrow(x)){
+        l[[i]] <- df[grep(x$D_ID[i], df$D_ID) %>% sample(x$adj_size[i]), ]
+        d <- bind_rows(l)
+        }
+# bind rows and order
+df_pps_2016 <- bind_rows(df_, d) %>% .[order(.$D_ID), ]
+
 # rm
-rm(list = c("p_2016", "z"))
+r <- ls() %>% .[!(. %in% c("df_pps_2016", "df_shanghai_2016_all", "xl"))]
+rm(list = r)
 
-# order
-df <- df_shanghai_2016_all %>%  .[order(.$D_ID), ] %>% group_by(D_ID)
+# save
+write_sav(df_pps_2016, "Twin Cities/03. 上海分層抽樣/2016_PPS.sav")
 
-# sampling
-l <- vector("list", nrow(xl))
-for(i in 1:nrow(xl)){
-        l[[i]] <- df[grep(xl$D_ID[i], df$D_ID) %>% sample(xl$adj_size[i]), ]
-        df_pps <- bind_rows(l)
-        }
-microbenchmark(
-        for(i in 1:nrow(xl)){
-        l[[i]] <- df[grep(xl$D_ID[i], df$D_ID) %>% sample(xl$adj_size[i]), ]
-        df_pps <- bind_rows(l)
-        }
-) %>% autoplot()
+# table
+p <- table(df_pps_2016$D_ID) %>% prop.table() %>% data.frame()
+names(p) <- c("D_ID", "prop_PPS")
+xl <- left_join(xl, p, by = "D_ID")
 
-table(df_pps$D_ID)
+p <- ggplot(xl, aes(x = "D_ID", y = "prop"))
+
+p1 <- qplot(xl$D_ID, xl$prop_insch)
+ggsave("p1.png", device = "png", plot = p1, path = "Twin Cities/03. 上海分層抽樣/")
+p2 <- qplot(xl$D_ID, xl$prop_PPS)
+ggsave("p2.png", device = "png", plot = p2, path = "Twin Cities/03. 上海分層抽樣/")
+
+table(df_pps_2016$D_ID) %>% prop.table() %>% plot()
+xl$prop_insch %>% plot()
 
 # print table xl
-x <- kable(xl, digits = 2, format = "html"); cat(x, sep = "\n")
-save(x, file = "Twin Cities/03. 上海分層抽樣/test.html")
+# x <- kable(xl, digits = 2, format = "html")
+# cat(x, file = "Twin Cities/03. 上海分層抽樣/test.html")
+pdf(file = "Twin Cities/03. 上海分層抽樣/test.pdf", height = 8.5, width = 13)
 grid.table(xl)
 dev.off()
