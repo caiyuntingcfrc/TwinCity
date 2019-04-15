@@ -15,9 +15,6 @@ FreqTable <- function(df, vars){
                 summarize(n = n()) %>% 
                 mutate(prop = n / sum(n) * 100)
 }
-
-vlist <- c("D_ID", "Gender")
-FreqTable(df_pps_2016, vars = D_ID)
         
 # D_ID (district id)
 df_pps_2016 %>% 
@@ -49,3 +46,6 @@ df_pps_2016 %>%
         filter(!(SP_WKHR %in% c(777, 888, 999))) %>% 
         .$SP_WKHR %>% 
         summary()
+
+# annual earning
+# 
