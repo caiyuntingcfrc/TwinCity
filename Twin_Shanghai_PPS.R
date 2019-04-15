@@ -5,10 +5,11 @@ l <- c("tidyverse", "stargazer", "summarytools", "sjlabelled", "ggplot2",
        "haven", "gridExtra", "knitr", "microbenchmark")
 lapply(l, require, character.only = TRUE); rm(l)
 
-#read .sav files
- df_shanghai_2016_all <- read_sav("Twin Cities/2.Children2016.sav")
+##### import files #####
+# read .sav files
+# df_shanghai_2016_all <- read_sav("Twin Cities/2.Children2016.sav")
 # save file
- save(df_shanghai_2016_all, file = "Twin Cities/df_shanghai_2016_all.RData")
+# save(df_shanghai_2016_all, file = "Twin Cities/df_shanghai_2016_all.RData")
 # read RData file
 load("Twin Cities/df_shanghai_2016_all.RData")
 
@@ -20,7 +21,7 @@ p_2016 <- p_2016 %>% mutate(
         )
 prop.table(p_2016$Freq)
 
-# Shanghai districts
+# recode Shanghai districts D_ID
 path <- "Twin Cities/03. 上海分層抽樣/20190409_2016上海統計年鑑_表20.15_各區縣小學普通情況.csv"
 name <- c("district", "n_sc", "n_grad", "n_recruit", "n_insch", "n_empl", "n_teachr")
 type <- rep("numeric", 6) %>% c("character", .)
@@ -76,7 +77,7 @@ df_ <- df_shanghai_2016_all %>% filter(D_ID %in% b) %>%
         .[order(.$D_ID), ] %>% group_by(D_ID)
 x <- xl %>% filter(!(D_ID %in% b))
 
-# PPS
+##### PPS #####
 l <- vector("list", nrow(x))
 for(i in 1:nrow(x)){
         l[[i]] <- df[grep(x$D_ID[i], df$D_ID) %>% sample(x$adj_size[i]), ]
@@ -90,7 +91,10 @@ r <- ls() %>% .[!(. %in% c("df_pps_2016", "df_shanghai_2016_all", "xl"))]
 rm(list = r)
 
 # save
+save(df_pps_2016, file = "Twin Cities/03. 上海分層抽樣/2016_PPS.RData")
 write_sav(df_pps_2016, "Twin Cities/03. 上海分層抽樣/2016_PPS.sav")
+
+##### plot #####
 
 # table
 p <- table(df_pps_2016$D_ID) %>% prop.table() %>% data.frame()
