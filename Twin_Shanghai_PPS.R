@@ -2,7 +2,7 @@ rm(list = ls())
 
 # load packages
 l <- c("tidyverse", "stargazer", "summarytools", "sjlabelled", "ggplot2", 
-       "haven", "gridExtra", "knitr", "microbenchmark")
+       "haven", "gridExtra", "knitr", "microbenchmark", "xlsx")
 lapply(l, require, character.only = TRUE); rm(l)
 
 ##### import files #####
@@ -22,10 +22,13 @@ p_2016 <- p_2016 %>% mutate(
 prop.table(p_2016$Freq)
 
 # recode Shanghai districts D_ID
-path <- "Twin Cities/03. 上海分層抽樣/20190409_2016上海統計年鑑_表20.15_各區縣小學普通情況.csv"
+path <- "Twin Cities/03. 上海分層抽樣/2012sampling_rev.xlsx"
 name <- c("district", "n_sc", "n_grad", "n_recruit", "n_insch", "n_empl", "n_teachr")
-type <- rep("numeric", 6) %>% c("character", .)
-xl <- read.csv(path, col.names = name, colClasses = type) %>% 
+type <- rep("numeric", 6) %>% c("text", .)
+xl <- readxl::read_xlsx(path, range = "A1:G17", col_names = name, col_types = type)
+Encoding(xl$district)
+# xl$district <- xl$district %>% iconv(from = "UTF-8", to = "CP950")
+xl <- xl %>% 
         mutate(
                 D_ID = case_when(
                         district == "崇明縣" ~ "1", 
@@ -47,28 +50,34 @@ xl <- read.csv(path, col.names = name, colClasses = type) %>%
 # left_join by D_ID
 xl <- left_join(xl, p_2016, by = "D_ID")
 
-# save xl
-save(xl, file = "Twin Cities/03. 上海分層抽樣/xl.RData")
-
-# load
-load("Twin Cities/03. 上海分層抽樣/xl.RData")
-
 # calculate sample size by each district
 xl <- xl %>% mutate(
         adj_N = Freq_2016 / prop_insch
         )
-adj <- xl %>% .[which(with(., adj_N < nrow(df_shanghai_2016_all) & adj_N > min(adj_N))), ] %>% 
+adj <- xl %>% .[which(with(., adj_N < nrow(df_shanghai_2016_all))), ] %>% 
         .$adj_N; adj
+
+adj_1164 <- adj[1]
+adj_832 <- adj[2]
+adj_1674 <- adj[3]
 
 # calculate adjusted n in each district. adj = 1124
 xl <- xl %>%  
         mutate(
-                adj_size = round(adj * prop_insch)
-                ) %>% 
-        .[order(.$D_ID), ]
+                adj_size_1164 = round(adj_1164 * prop_insch), 
+                adj_size_832 = round(adj_832 * prop_insch), 
+                adj_size_1674 = round(adj_1674 * prop_insch)
+                )
 
 # determine in which district that the adjusted sample size is larger than original one.
-b <- xl %>% .[which(with(., adj_size >= Freq_2016)), ] %>% .$D_ID
+b_1164 <- xl %>% .[which(with(., adj_size_1164 >= Freq_2016)), ] %>% .$D_ID
+b_832 <- xl %>% .[which(with(., adj_size_832 >= Freq_2016)), ] %>% .$D_ID
+b_1674 <- xl %>% .[which(with(., adj_size_1674 >= Freq_2016)), ] %>% .$D_ID
+
+# save xl to excel file
+xl <-  xl %>% .[order(.$D_ID), ] %>% as.data.frame()
+write.xlsx(xl, file = "Twin Cities/03. 上海分層抽樣/sampling_frame.xlsx", 
+           row.names = FALSE, col.names = TRUE)
 
 # skip the district (all of the cases will be sampled)
 df <- df_shanghai_2016_all %>% filter(!(D_ID %in% b)) %>% 
@@ -91,8 +100,8 @@ r <- ls() %>% .[!(. %in% c("df_pps_2016", "df_shanghai_2016_all", "xl"))]
 rm(list = r)
 
 # save
-save(df_pps_2016, file = "Twin Cities/03. 上海分層抽樣/2016_PPS.RData")
-write_sav(df_pps_2016, "Twin Cities/03. 上海分層抽樣/2016_PPS.sav")
+# save(df_pps_2016, file = "Twin Cities/03. 上海分層抽樣/2016_PPS.RData")
+# write_sav(df_pps_2016, "Twin Cities/03. 上海分層抽樣/2016_PPS.sav")
 
 ##### plot #####
 

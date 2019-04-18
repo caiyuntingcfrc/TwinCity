@@ -1,26 +1,20 @@
 rm(list = ls())
 ##### load packages #####
 l <- c("tidyverse", "stargazer", "summarytools", "sjlabelled", "ggplot2", 
-       "haven", "gridExtra", "knitr", "microbenchmark")
+       "haven", "gridExtra", "knitr", "microbenchmark", "Hmisc")
 lapply(l, require, character.only = TRUE); rm(l)
 
 ##### read the RData file #####
 load("Twin Cities/03. 上海分層抽樣/2016_PPS.RData")
 
 ##### descriptive analysis #####
-# functioin
-FreqTable <- function(df, vars){
-        df %>% 
-                group_by(vars) %>% 
-                summarize(n = n()) %>% 
-                mutate(prop = n / sum(n) * 100)
-}
-        
+
 # D_ID (district id)
 df_pps_2016 %>% 
         group_by(D_ID) %>% 
         summarise(n = n()) %>% 
-        mutate(prop = n / sum(n) * 100)
+        mutate(prop = n / sum(n) * 100) %>% 
+
 
 # Gender (children's gender)
 df_pps_2016 %>% 
