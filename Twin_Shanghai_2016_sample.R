@@ -13,7 +13,7 @@ load("Twin Cities/03. 上海分層抽樣/2016_PPS.RData")
 df_pps_2016 %>% 
         group_by(D_ID) %>% 
         summarise(n = n()) %>% 
-        mutate(prop = n / sum(n) * 100) %>% 
+        mutate(prop = n / sum(n) * 100)
 
 
 # Gender (children's gender)
