@@ -4,7 +4,7 @@
 # rm
 rm(list = ls())
 # set working directory
-setwd("~/R_wd/twin_cities/")
+setwd("D:/R_wd/Twin Cities/")
 # list of packages
 list.packages <- c("tidyverse", "magrittr", "haven", 
                    "gridExtra", "summarytools", "tabulizer", 
@@ -27,7 +27,7 @@ st_options(style = "simple",
 # read sav file -----------------------------------------------------------
 
 filepath <- "3.雙城正式_全年級20180704final_han&Lung.sav"
-df <- read_sav(filepath, encoding = "UTF-8", user_na = FALSE)
+df <- read_spss(filepath)
 var_lables <- sapply(df, attr, "label")
 vlu_lables <- sapply(df, attr, "labels")
 rm(filepath)
@@ -36,7 +36,7 @@ rm(filepath)
 # extract the BMI table ---------------------------------------------------
 
 # read the pdf file
-filepath <- "~/Downloads/衛福部_2013_兒童與青少年生長身體質量指數(BMI)建議值.pdf"
+filepath <- "BMI/衛福部_2013_兒童與青少年生長身體質量指數(BMI)建議值.pdf"
 tbl_BMI <- extract_tables(file = filepath, encoding = "UTF-8") %>% 
         .[[1]] %>% 
         .[-(1:4), ]
@@ -109,5 +109,7 @@ for(i in 2:nrow(tbl_BMI)) {
 
 
 # save file ---------------------------------------------------------------
-write_sav(df, "~/Desktop/tp_all.sav", compress = FALSE)
-read_sav("~/Desktop/tp_all.sav", encoding = "UTF-8")
+Taipei_all <- df
+save(Taipei_all, file = "Taipei_all.RData")
+write_sav(df, "tp_all.sav", compress = FALSE)
+read_sav("Taipei_all.sav")
