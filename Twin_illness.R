@@ -1,17 +1,23 @@
 
-# prep and options --------------------------------------------------------
+# Prep and Options --------------------------------------------------------
 
-# set working directory
-setwd("D:/R_wd/")
-# clear objects
+# rm
 rm(list = ls())
+# set working directory
+setwd("D:/R_wd/Twin Cities/")
+# list of packages
+list.packages <- c("tidyverse", "magrittr", "haven", 
+                   "gridExtra", "summarytools", "tabulizer", 
+                   "labelled", "DescTools", "userfriendlyscience", 
+                   "stargazer", "sjPlot")
+# check if the packages are installed
+new.packages <- list.packages[!(list.packages %in% installed.packages()[ , "Package"])]
+# install new packages
+if(length(new.packages)) install.packages(new.packages)
 # load the packages
-l <- c("tidyverse", "DescTools", "ggplot2", 
-       "car", "userfriendlyscience", "summarytools", 
-       "magrittr", "haven", "gridExtra", 
-       "readxl", "sjPlot")
-lapply(l, require, character.only= TRUE)
-rm(l)
+lapply(list.packages, require, character.only = TRUE)
+# remove lists
+rm(list.packages, new.packages)
 # options
 options(scipen = 999)
 # options for summarytools
@@ -45,13 +51,14 @@ attr(df$illness, "labels") <- c(1:4, 99)
 names(attr(df$illness, "labels")) <- c("健康問題", "疾病", "重大疾病", "無法歸類")
 
 # frequencies -------------------------------------------------------------
-# plot
+
+# illness X ovrw
 sjt.xtab(df$illness, 
          df$ovrw, 
          encoding = "UTF-8", digits = 2, 
          title = "雙城大台北地區 — 身心狀況分類 X BMI標準", 
          show.cell.prc = TRUE, show.legend = TRUE, 
          string.total = "總和", emph.total = TRUE, show.na = FALSE)
-a <- df %>% filter(illness == 99 & Ch3 == 1)
+
 # test --------------------------------------------------------------------
 
