@@ -60,7 +60,11 @@ sjt.xtab(var.row = df$bmicat, var.col = df$grade,
          showSummary = FALSE,
          highlightTotal = TRUE,
          encoding = "CP950")
+
 # detach sjPlot 1.7
 detach("package:sjPlot", unload = TRUE)
 # load sjPlot 2.3
 library(sjPlot, lib.loc = "c:/Program Files/R/library")
+
+# plot
+sjp.grpfrq(df$bmicat, df$Bd23, show.legend = TRUE)
