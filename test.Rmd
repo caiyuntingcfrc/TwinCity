@@ -1,0 +1,100 @@
+---
+title: "BMI"
+author: "研究員：蔡昀霆"
+date: "2019/6/21"
+output: html_document
+graphics: yes
+---
+```{r setup, include=FALSE}
+
+knitr::opts_knit$set(root.dir = "~/R data/twincity/資料檔/")
+
+```
+
+
+```{r, eval = TRUE, include = FALSE}
+
+# rm
+rm(list = ls())
+# set options
+options(scipen = 999)
+# list of packages
+list.packages <- c("tidyverse", "magrittr", "haven", 
+                   "gridExtra", "summarytools", "tabulizer", 
+                   "labelled", "DescTools", "userfriendlyscience", "stargazer", 
+                   "sjlabelled", "sjmisc", "sjstats", "ggeffects", "sjPlot")
+# check if the packages are installed
+new.packages <- list.packages[!(list.packages %in% installed.packages()[ , "Package"])]
+# install new packages
+if(length(new.packages)) install.packages(new.packages)
+# load the packages
+lapply(list.packages, require, character.only = TRUE)
+# remove lists
+rm(list.packages, new.packages)
+
+```
+
+```{r, include=FALSE}
+df <- read_sav("~/R data/twincity/資料檔/11. Taipei_all.sav")
+```
+
+```{r tables , echo=FALSE}
+
+l <- list()
+# grade
+l[1] <- sjt.xtab(var.row = df$bmicat,  
+                 var.col = df$grade, 
+                 variableLabels = c("BMI 分類", 
+                                    "年級"),
+                 stringTotal = "總和",
+                 showHorizontalLine = TRUE,
+                 showCellPerc = TRUE,
+                 showLegend = TRUE,
+                 showSummary = FALSE,
+                 highlightTotal = TRUE,
+                 useViewer = FALSE,
+                 no.output = TRUE,
+                 digits = 2,
+                 encoding = "CP950")$knitr
+# sf
+l[2] <- sjt.xtab(var.row = df$bmicat,  
+                 var.col = df$Sf, 
+                 variableLabels = c("BMI 分類", 
+                                    "家庭結構"),
+                 stringTotal = "總和",
+                 showHorizontalLine = TRUE,
+                 showCellPerc = TRUE,
+                 showLegend = TRUE,
+                 showSummary = FALSE,
+                 highlightTotal = TRUE,
+                 useViewer = FALSE,
+                 no.output = TRUE, 
+                 digits = 2,
+                 encoding = "CP950")$knitr
+# sex
+l[3] <- sjt.xtab(var.row = df$bmicat,  
+                 var.col = df$Bd23, 
+                 variableLabels = c("BMI 分類", 
+                                    "性別"),
+                 stringTotal = "總和",
+                 showHorizontalLine = TRUE,
+                 showCellPerc = TRUE,
+                 showLegend = TRUE,
+                 showSummary = FALSE,
+                 highlightTotal = TRUE,
+                 useViewer = FALSE,
+                 no.output = TRUE, 
+                 digits = 2,
+                 encoding = "CP950")$knitr
+
+```
+## BMI X Grade
+`r l[[1]]`
+
+## BMI X Structure of Families
+`r l[[2]]`
+
+## BMI X Sex
+`r l[[3]]`
+
+```
