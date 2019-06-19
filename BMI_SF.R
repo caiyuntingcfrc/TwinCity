@@ -35,6 +35,11 @@ df <- read_sav(filepath)
 
 # Desc (BMI) --------------------------------------------------------------
 
+# bmicat
+
+plot_frq(df$bmicat, 
+         title = "BMI分類") + theme_sjplot()
+
 # ctable BMI x grade
 sjt.xtab(var.row = df$bmicat, var.col = df$grade, 
          var.labels = c("BMI分類", "年級"), 
@@ -98,6 +103,9 @@ sjp.xtab(x = df$bmicat, grp = df$Sf,
 
 # Desc (illness) ----------------------------------------------------------
 
+# illness
+plot_frq(df$illness, 
+         title = "身心狀況分類") + theme_sjplot()
 
 # ctable illness X grade
 sjt.xtab(var.row = df$illness, var.col = df$grade, 
@@ -158,3 +166,10 @@ sjp.xtab(x = df$Sf, grp = df$illness,
 sjp.xtab(x = df$illness, grp = df$Sf, 
          title = "家庭組織型態 X 身心狀況分類", 
          show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
+
+
+# Desc Sf -----------------------------------------------------------------
+
+# Sf
+plot_frq(df$Sf, 
+         title = "家庭組織型態") + theme_sjplot()
