@@ -24,7 +24,7 @@ options(scipen = 999)
 
 # Read the Data File ------------------------------------------------------
 
-filepath <- "11. Taipei_all.sav"
+filepath <- "12.Taipei_all.sav"
 df <- read_sav(filepath)
 
 
@@ -67,6 +67,29 @@ ggplot(d, aes(bmicat, y = (..count..) / sum(..count..), fill = bmicat)) +
         # theme
         theme_sjplot()
 dev.off()
+
+# # bmi x grade stacked
+# 
+# a <- d %>% select("bmicat", "grade") %>% 
+#         count(bmicat, grade) %>% 
+#         mutate(prc = n / sum(n), ypos = 1 - 0.5 * prc)
+# 
+# ggplot(a, aes(x = grade, y = prc, fill = bmicat, 
+#               label = paste0(sprintf("%1.1f", prc * 100)), "%")) + 
+#         # stacked bar
+#         geom_col(position = position_stack()) +
+#         # adjust scales
+#         scale_y_continuous(labels = scales::percent) +
+#         # text prc
+#         geom_text(position = position_stack(vjust = .5), size = 3)
+#         # labels
+#         labs(x = "BMI分類", y = "百分比", title = "BMI分類\n") +
+# 
+#         # legend
+#         scale_fill_brewer(name = NULL, palette = "Paired", labels = levels(d$bmicat)) +
+#         # theme
+#         theme_sjplot()
+# dev.off()
 
 # bmi x grade
 tiff("plots/BMI_Grade.tiff", 1280, 720, compression = "none", res = 110)
@@ -184,7 +207,7 @@ ggplot(dd, aes(Sf, y = (..count..) / sum(..count..), fill = Sf)) +
 dev.off()
 
 # bmi x Sf
-tiff("plots/BMI_Sf.tiff", 1280, 720, compression = "none", res = 110)
+tiff("plots/BMI_Sf.tiff", 1560, 720, compression = "none", res = 110)
 ggplot(dd, aes(bmicat, y = ..prop.., fill = factor(..x..), group = Sf)) + 
         geom_bar(stat = "count") + 
         # text prc
@@ -195,18 +218,20 @@ ggplot(dd, aes(bmicat, y = ..prop.., fill = factor(..x..), group = Sf)) +
                       y = ..prop.. ), stat= "count", vjust = -.5) + 
         # labels
         labs(x = "BMI分類", y = "百分比", title = "BMI分類 X 家庭組織型態\n") +
-        # adjust scales
+        # adjust y scales
         scale_y_continuous(labels = scales::percent, expand = c(0, 0), limits = c(0, 1)) +
         # color brewer
         scale_fill_brewer(name = NULL, palette = "Paired", labels = levels(dd$bmicat)) +
         # grid
         facet_grid(~ Sf) + 
         # theme
-        theme_sjplot()
+        theme_sjplot() +
+        #customization
+        theme(legend.position = "top")
 dev.off()
 
 # Sf x bmi
-tiff("plots/Sf_Bmi.tiff", 1280, 720, compression = "none", res = 110)
+tiff("plots/Sf_Bmi.tiff", 1560, 720, compression = "none", res = 110)
 ggplot(dd, aes(Sf, group = bmicat, y = ..prop.., fill = factor(..x..))) + 
         geom_bar(stat = "count") + 
         # text prc
@@ -224,148 +249,112 @@ ggplot(dd, aes(Sf, group = bmicat, y = ..prop.., fill = factor(..x..))) +
         # grid
         facet_grid(~bmicat) + 
         # theme
-        theme_sjplot()
+        theme_sjplot() + 
+        #customization
+        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), 
+              legend.position = "top")
 dev.off()
-# bmi x sf
-
 # legacy ------------------------------------------------------------------
-
-
-
-# bmicat
-
-plot_frq(df$bmicat, 
-         title = "BMI分類") + theme_sjplot()
-
 # ctable BMI x grade
-sjt.xtab(var.row = df$bmicat, var.col = df$grade, 
-         var.labels = c("BMI分類", "年級"), 
-         title = "BMI分類 X 年級", 
-         string.total = "總和", 
+sjt.xtab(var.row = df$bmicat, var.col = df$grade,
+         var.labels = c("BMI分類", "年級"),
+         title = "BMI分類 X 年級\n",
+         string.total = "總和",
          show.cell.prc = FALSE, show.row.prc = FALSE, show.col.prc = TRUE,
-         show.summary = FALSE, show.legend = TRUE, 
+         show.summary = FALSE, show.legend = TRUE,
          emph.total = TRUE,
          digits = 2,
-         encoding = "UTF-8")
-# plot BMI x grade
-sjp.xtab(x = df$grade, grp = df$bmicat, 
-         title = "BMI分類 X 年級", 
-         show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
-# plot grade x BMI
-sjp.xtab(x = df$bmicat, grp = df$grade, 
-         title = "年級 X BMI分類", 
-         show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
-
+         encoding = "UTF-8", 
+         file = "plots/bmi_grad.doc")
 # ctable BMI X Sex
-sjt.xtab(var.row = df$bmicat, var.col = df$Bd23, 
-         var.labels = c("BMI分類", "性別"), 
-         title = "BMI分類 X 性別", 
-         string.total = "總和", 
-         show.cell.prc = TRUE, show.row.prc = FALSE, show.col.prc = FALSE,
-         show.summary = FALSE, show.legend = TRUE, 
+sjt.xtab(var.row = df$bmicat, var.col = df$Bd23,
+         var.labels = c("BMI分類", "性別"),
+         title = "BMI分類 X 性別\n",
+         string.total = "總和",
+         show.cell.prc = FALSE, show.row.prc = FALSE, show.col.prc = TRUE,
+         show.summary = FALSE, show.legend = TRUE,
          emph.total = TRUE,
          digits = 2,
          encoding = "UTF-8",
-         file = "BMIxSex.doc")
-# plot BMI X Sex
-sjp.xtab(x = df$Bd23, grp = df$bmicat, 
-         title = "BMI分類 X 性別", 
-         show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
-# plot Sex X BMI
-sjp.xtab(x = df$bmicat, grp = df$Bd23, 
-         title = "性別 X BMI分類", 
-         show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
-
+         file = "plots/BMIxSex.doc")
 # ctable BMI X SF
-sjt.xtab(var.row = df$bmicat, var.col = df$Sf, 
-         var.labels = c("BMI分類", "家庭組織型態"), 
-         title = "BMI分類 X 家庭組織型態", 
-         string.total = "總和", 
-         show.cell.prc = TRUE, show.row.prc = FALSE, show.col.prc = FALSE,
-         show.summary = FALSE, show.legend = TRUE, 
+sjt.xtab(var.row = df$bmicat, var.col = df$Sf,
+         var.labels = c("BMI分類", "家庭組織型態"),
+         title = "BMI分類 X 家庭組織型態\n",
+         string.total = "總和",
+         show.cell.prc = FALSE, show.row.prc = FALSE, show.col.prc = TRUE,
+         show.summary = FALSE, show.legend = TRUE,
          emph.total = TRUE,
          digits = 2,
-         encoding = "UTF-8", 
-         file = "BMIxSf.doc")
-# plot BMI X Sf
-sjp.xtab(x = df$Sf, grp = df$bmicat, 
-         title = "BMI分類 X 家庭組織型態", 
-         show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
-# plot Sf X BMI
-sjp.xtab(x = df$bmicat, grp = df$Sf, 
-         title = "家庭組織型態 X BMI分類", 
-         show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
+         encoding = "UTF-8",
+         file = "plots/BMIxSf.doc")
 
 
-# Desc (illness) ----------------------------------------------------------
-
-# illness
-plot_frq(df$illness, 
-         title = "身心狀況分類") + theme_sjplot()
-
-# ctable illness X grade
-sjt.xtab(var.row = df$illness, var.col = df$grade, 
-         var.labels = c("身心狀況分類", "年級"), 
-         title = "身心狀況分類 X 年級", 
-         string.total = "總和", 
-         show.cell.prc = TRUE, show.row.prc = FALSE, show.col.prc = FALSE,
-         show.summary = FALSE, show.legend = TRUE, 
-         emph.total = TRUE,
-         digits = 2,
-         encoding = "UTF-8", 
-         file = "illnessxGrade.doc")
-# plot illness X grade
-sjp.xtab(x = df$grade, grp = df$illness, 
-         title = "身心狀況分類 X 年級", 
-         show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
-# plot grade X illness
-sjp.xtab(x = df$illness, grp = df$grade, 
-         title = "年級 X 身心狀況分類", 
-         show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
-
-# ctable illness X sex
-sjt.xtab(var.row = df$illness, var.col = df$Bd23, 
-         var.labels = c("身心狀況分類", "性別"), 
-         title = "身心狀況分類 X 性別", 
-         string.total = "總和", 
-         show.cell.prc = TRUE, show.row.prc = FALSE, show.col.prc = FALSE,
-         show.summary = FALSE, show.legend = TRUE, 
-         emph.total = TRUE,
-         digits = 2,
-         encoding = "UTF-8", 
-         file = "illnessxSex.doc")
-# plot illness X Sex
-sjp.xtab(x = df$Bd23, grp = df$illness, 
-         title = "身心狀況分類 X 性別", 
-         show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
-# plot Sex X illness
-sjp.xtab(x = df$illness, grp = df$Bd23, 
-         title = "性別 X 身心狀況分類", 
-         show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
-
-# ctable illness X Sf
-sjt.xtab(var.row = df$illness, var.col = df$Sf, 
-         var.labels = c("身心狀況分類", "家庭組織型態"), 
-         title = "身心狀況分類 X 家庭組織型態", 
-         string.total = "總和", 
-         show.cell.prc = TRUE, show.row.prc = FALSE, show.col.prc = FALSE,
-         show.summary = FALSE, show.legend = TRUE, 
-         emph.total = TRUE,
-         digits = 2,
-         encoding = "UTF-8", 
-         file = "illnessxSf.doc")
-# plot illness X Sf
-sjp.xtab(x = df$Sf, grp = df$illness, 
-         title = "身心狀況分類 X 家庭組織型態", 
-         show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
-# plot Sex X illness
-sjp.xtab(x = df$illness, grp = df$Sf, 
-         title = "家庭組織型態 X 身心狀況分類", 
-         show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
-
-
-# Desc Sf -----------------------------------------------------------------
-
-# Sf
-plot_frq(df$Sf, 
-         title = "家庭組織型態") + theme_sjplot()
+# # Desc (illness) ----------------------------------------------------------
+# 
+# # illness
+# plot_frq(df$illness, 
+#          title = "身心狀況分類") + theme_sjplot()
+# 
+# # ctable illness X grade
+# sjt.xtab(var.row = df$illness, var.col = df$grade, 
+#          var.labels = c("身心狀況分類", "年級"), 
+#          title = "身心狀況分類 X 年級", 
+#          string.total = "總和", 
+#          show.cell.prc = TRUE, show.row.prc = FALSE, show.col.prc = FALSE,
+#          show.summary = FALSE, show.legend = TRUE, 
+#          emph.total = TRUE,
+#          digits = 2,
+#          encoding = "UTF-8", 
+#          file = "illnessxGrade.doc")
+# # plot illness X grade
+# sjp.xtab(x = df$grade, grp = df$illness, 
+#          title = "身心狀況分類 X 年級", 
+#          show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
+# # plot grade X illness
+# sjp.xtab(x = df$illness, grp = df$grade, 
+#          title = "年級 X 身心狀況分類", 
+#          show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
+# 
+# # ctable illness X sex
+# sjt.xtab(var.row = df$illness, var.col = df$Bd23, 
+#          var.labels = c("身心狀況分類", "性別"), 
+#          title = "身心狀況分類 X 性別", 
+#          string.total = "總和", 
+#          show.cell.prc = TRUE, show.row.prc = FALSE, show.col.prc = FALSE,
+#          show.summary = FALSE, show.legend = TRUE, 
+#          emph.total = TRUE,
+#          digits = 2,
+#          encoding = "UTF-8", 
+#          file = "illnessxSex.doc")
+# # plot illness X Sex
+# sjp.xtab(x = df$Bd23, grp = df$illness, 
+#          title = "身心狀況分類 X 性別", 
+#          show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
+# # plot Sex X illness
+# sjp.xtab(x = df$illness, grp = df$Bd23, 
+#          title = "性別 X 身心狀況分類", 
+#          show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
+# 
+# # ctable illness X Sf
+# sjt.xtab(var.row = df$illness, var.col = df$Sf, 
+#          var.labels = c("身心狀況分類", "家庭組織型態"), 
+#          title = "身心狀況分類 X 家庭組織型態", 
+#          string.total = "總和", 
+#          show.cell.prc = TRUE, show.row.prc = FALSE, show.col.prc = FALSE,
+#          show.summary = FALSE, show.legend = TRUE, 
+#          emph.total = TRUE,
+#          digits = 2,
+#          encoding = "UTF-8", 
+#          file = "illnessxSf.doc")
+# # plot illness X Sf
+# sjp.xtab(x = df$Sf, grp = df$illness, 
+#          title = "身心狀況分類 X 家庭組織型態", 
+#          show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
+# # plot Sex X illness
+# sjp.xtab(x = df$illness, grp = df$Sf, 
+#          title = "家庭組織型態 X 身心狀況分類", 
+#          show.total = TRUE, show.n = TRUE, show.prc = TRUE) + theme_sjplot()
+# 
+# 
+# # Desc Sf -----------------------------------------------------------------
