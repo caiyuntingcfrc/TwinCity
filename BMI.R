@@ -26,9 +26,12 @@ st_options(style = "simple",
 
 # read sav file -----------------------------------------------------------
 
-filepath <- "3.雙城正式_全年級20180704final_han&Lung.sav"
+# data from Shanghai
+filepath <- "1.上海_2014r2.sav"
 df <- read_spss(filepath)
 rm(filepath)
+
+# compute realage
 
 
 # extract the bmi table ---------------------------------------------------
