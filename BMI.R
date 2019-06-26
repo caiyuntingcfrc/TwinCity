@@ -32,7 +32,7 @@ df <- read_spss(filepath)
 rm(filepath)
 
 # compute realage
-
+Birthdate <- df$Birthdate
 
 # extract the bmi table ---------------------------------------------------
 
