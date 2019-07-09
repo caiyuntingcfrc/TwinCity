@@ -146,17 +146,17 @@ Birthdmonth <- df$Birthmonth
 Birthdate <- df$Birthdate
 Age <- df$Age
 
-# 2014 march
-S_year <- 2014.25
+# 2016 march
+S_year <- 2016.25
 d <- df %>% mutate( yr = Birthdyear + (((Birthdmonth - 1) / 12)),
                     realage = S_year - yr)
-# d$realage[is.na(d$realage)] <- d$Age[is.na(d$realage)]
 
 
-# calculate bmis ----------------------------------------------------------
+# calculate bmi -----------------------------------------------------------
 
-d <- d %>% mutate(bmicat_tp = NA)
-
+d <- d %>% mutate(bmi = cweight / ((cheight / 100) ** 2 ), 
+                  bmicat_tp = NA)
+attr(d$bmi, "label") <- "身體質量指數"
 
 # for loop ----------------------------------------------------------------
 
@@ -210,5 +210,4 @@ d$bmicat_tp <- labelled(d$bmicat_tp, c("過輕" = 1,
 attr(d$bmicat_tp, "format.spss") <- "F8.2"
 
 # save file ---------------------------------------------------------------
-Taipei_all <- d
-write_sav(Taipei_all, "Shanghai_2014.sav", compress = FALSE)
+write_sav(d, "Shanghai_2016.sav", compress = FALSE)
