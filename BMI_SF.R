@@ -4,7 +4,7 @@
 # rm
 rm(list = ls())
 # set working directory
-setwd("D:/R_wd/Twin Cities/")
+setwd("D:/R_wd/Twin Cities/data/")
 
 # list of packages
 list.packages <- c("tidyverse", "magrittr", "haven", 
@@ -23,20 +23,15 @@ rm(list.packages, new.packages)
 options(scipen = 999)
 
 # Read the Data File ------------------------------------------------------
-
-filepath <- "12.Taipei_all.sav"
+filepath <- "11. Taipei_all.sav"
 df <- read_sav(filepath)
-
-
-# bmi z-score -------------------------------------------------------------
-
-
-
 
 # Desc (BMI) --------------------------------------------------------------
 
 # remove NAs and add levels
-d <- df[!is.na(df$grade), ]
+d <- df
+d$bmicat <- d$bmicat_tw
+d <- d[!is.na(df$grade), ]
 d$grade <- as.factor(d$grade)
 d <- d[!is.na(d$bmicat), ]
 d$bmicat <- as.factor(d$bmicat)
@@ -46,6 +41,7 @@ d$Bd23 <- as.factor(d$Bd23)
 levels(d$grade) <- c("一年級", "三年級", "五年級")
 levels(d$bmicat) <- c("過輕", "正常範圍", "過重", "肥胖")
 levels(d$Bd23) <- c("女性", "男性")
+
 
 # bmi
 tiff("plots/BMI.tiff", 1024, 768, compression = "none", res = 110)
