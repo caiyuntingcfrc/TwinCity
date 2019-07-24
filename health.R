@@ -24,21 +24,21 @@ options(scipen = 999)
 
 # Load the data file ------------------------------------------------------
 
-df <- read_sav("11. Taipei_all.sav", encoding = "UTF-8")
+df <- read_sav("twin cities/資料檔/11. Taipei_all.sav", encoding = "UTF-8")
 d <- df %>% filter(grade == 1)
 ggplot(aes(x = Ft11_1hr, y = Ch4_attention_sum), data = df) + 
         geom_point(shape = 1, na.rm = TRUE, stroke = .1) + 
         geom_smooth(method = lm, se = TRUE, na.rm = TRUE) + 
         theme_classic()
 
-cor.test(x = d$Ft11_1hr, y = d$Ch4_attention_sum, method = "pearson")
+cor.test(x = d$Ft11_1hr, y = d$Ch4_attention_sum, method = "spearman")
 dd <- tibble(d$Ft11_1hr, d$Ch4_attention_sum)
 sjt.corr(data = dd, 
          corr.method = "pearson", 
          var.labels = c("週間看電視時數", "注意力總分"), 
          p.numeric = TRUE, 
          na.deletion = "listwise", 
-         encoding = "CP950")
+         encoding = "UTF-8")
 
 # sjt.xtab(var.row = dd$`d$Ft11_1hr`, var.col = dd$`d$Ch4_attention_sum`, 
 #          var.labels = c("週間看電視時數", "注意力總分"), 
