@@ -2,7 +2,7 @@
 title: "Health"
 author: "Cai, Yun-Ting"
 date: "2019/7/29"
-output: html_document
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
@@ -14,7 +14,7 @@ rm(list = ls())
 cat("\014")
 # list of packages
 list.packages <- c("tidyverse", "magrittr", "haven", 
-                   "gridExtra", "tabulizer", 
+                   "gridExtra", "tabulizer", "knitr",
                    "labelled", "DescTools", "ggplot2", 
                    "stargazer", "sjPlot", "arsenal", "questionr")
 # check if the packages are installed
@@ -48,8 +48,9 @@ df$Ch2 <- labelled(df$Ch2,
                    label = "總體健康")
 
 # descr_Ch2
-freq(df$Ch2, digits = 2, cum = TRUE, total = TRUE)
-a
+a <- freq(df$Ch2, digits = 2, cum = TRUE, total = F, levels = "p", na.last = FALSE)
+kable(a)
+
 
 
 ```
@@ -57,9 +58,14 @@ a
 ## 二、疾病狀況（Ch3）
 
 ```{r descr_Ch3, echo=FALSE}
-
+# labels
+df$Ch3 <- labelled(df$Ch3, 
+                   labels = c("沒有" = 0, 
+                              "有" = 1),  
+                   label = "總體健康")
 # descr_Ch3
-freq(df$Ch3, digits = 2, cum = TRUE, total = TRUE)
+a <- freq(df$Ch3, digits = 2, cum = T, total = F, levels = "p", na.last = FALSE)
+kable(a)
 
 ```
 
