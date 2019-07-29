@@ -1,0 +1,66 @@
+---
+title: "Health"
+author: "Cai, Yun-Ting"
+date: "2019/7/29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "D:/R_wd/Twin Cities/")
+# clean global evironment
+rm(list = ls())
+# clean console
+cat("\014")
+# list of packages
+list.packages <- c("tidyverse", "magrittr", "haven", 
+                   "gridExtra", "tabulizer", 
+                   "labelled", "DescTools", "ggplot2", 
+                   "stargazer", "sjPlot", "arsenal", "questionr")
+# check if the packages are installed
+new.packages <- list.packages[!(list.packages %in% installed.packages()[ , "Package"])]
+# install new packages
+if(length(new.packages)) install.packages(new.packages)
+# load the packages
+lapply(list.packages, require, character.only = TRUE)
+# remove lists
+rm(list.packages, new.packages)
+# options
+options(scipen = 999)
+```
+
+```{r read, include=FALSE}
+# Load the data file ------------------------------------------------------
+
+df <- read_sav("11. Taipei_all.sav", encoding = "UTF-8")
+
+```
+
+# 描述統計  
+## 一、總體健康（Ch2）
+```{r descr_Ch2, echo=FALSE}
+df$Ch2 <- labelled(df$Ch2, 
+                   labels = c("極好" = 1, 
+                              "非常好" = 2, 
+                              "好" = 3, 
+                              "一般" = 4, 
+                              "不好" = 5), 
+                   label = "總體健康")
+
+# descr_Ch2
+freq(df$Ch2, digits = 2, cum = TRUE, total = TRUE)
+a
+
+
+```
+
+## 二、疾病狀況（Ch3）
+
+```{r descr_Ch3, echo=FALSE}
+
+# descr_Ch3
+freq(df$Ch3, digits = 2, cum = TRUE, total = TRUE)
+
+```
+
+

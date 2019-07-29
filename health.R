@@ -1,8 +1,10 @@
 
 # Prep and Options --------------------------------------------------------
 
-# rm
+# clean global evironment
 rm(list = ls())
+# clean console
+cat("\014")
 # set working directory
 setwd("D:/R_wd/Twin Cities/data")
 # list of packages
@@ -24,7 +26,19 @@ options(scipen = 999)
 
 # Load the data file ------------------------------------------------------
 
-df <- read_sav("twin cities/資料檔/11. Taipei_all.sav", encoding = "UTF-8")
+df <- read_sav("11. Taipei_all.sav", encoding = "UTF-8")
+
+# Health_test -------------------------------------------------------------
+
+# descr_Ch3
+t <- Freq(as.factor(df$Ch3), useNA = "ifany")
+t <- freq(df$Ch3, 
+          display.labels = FALSE, 
+          style = "grid")
+dimnames(t)[[1]] <- c(names(attr(df$Ch3, "labels"))[1:2], "遺漏", "總和")
+t
+
+
 d <- df %>% filter(grade == 1)
 ggplot(aes(x = Ft11_1hr, y = Ch4_attention_sum), data = df) + 
         geom_point(shape = 1, na.rm = TRUE, stroke = .1) + 
@@ -38,7 +52,7 @@ sjt.corr(data = dd,
          var.labels = c("週間看電視時數", "注意力總分"), 
          p.numeric = TRUE, 
          na.deletion = "listwise", 
-         encoding = "UTF-8")
+         encoding = "CP950")
 
 # sjt.xtab(var.row = dd$`d$Ft11_1hr`, var.col = dd$`d$Ch4_attention_sum`, 
 #          var.labels = c("週間看電視時數", "注意力總分"), 
