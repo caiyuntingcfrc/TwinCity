@@ -33,8 +33,8 @@ df <- read_sav("11. Taipei_all.sav", encoding = "UTF-8")
 # descr_Ch3
 t <- Freq(as.factor(df$Ch3), useNA = "ifany")
 t <- freq(df$Ch3, 
-          display.labels = FALSE, 
-          style = "grid")
+          display.labels = TRUE, 
+          style = "simple")
 dimnames(t)[[1]] <- c(names(attr(df$Ch3, "labels"))[1:2], "遺漏", "總和")
 t
 
