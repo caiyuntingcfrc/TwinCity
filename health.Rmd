@@ -2,12 +2,14 @@
 title: "Health"
 author: "Cai, Yun-Ting"
 date: "2019/7/29"
-output: word_document
+output: 
+        word_document:
+                        reference_docx: style.docx
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = "D:/R_wd/Twin Cities/")
+knitr::opts_chunk$set(echo = TRUE, dpi = 300, warning = FALSE)
+knitr::opts_knit$set(root.dir = "C:/Users/leots/Documents/R data/twin/資料檔/")
 # clean global evironment
 rm(list = ls())
 # clean console
@@ -16,7 +18,8 @@ cat("\014")
 list.packages <- c("tidyverse", "magrittr", "haven", 
                    "gridExtra", "tabulizer", "knitr",
                    "labelled", "DescTools", "ggplot2", 
-                   "stargazer", "sjPlot", "arsenal", "questionr")
+                   "stargazer", "sjPlot", "arsenal", 
+                   "questionr", "descr", "PerformanceAnalytics")
 # check if the packages are installed
 new.packages <- list.packages[!(list.packages %in% installed.packages()[ , "Package"])]
 # install new packages
@@ -30,42 +33,339 @@ options(scipen = 999)
 ```
 
 ```{r read, include=FALSE}
-# Load the data file ------------------------------------------------------
+# read file
+pathfile <- "~/R data/twin/資料檔/11. Taipei_all.sav"
+df <- read_sav(pathfile , encoding = "UTF-8")
 
-df <- read_sav("11. Taipei_all.sav", encoding = "UTF-8")
+# Ch2
+df$Ch2 <- factor(df$Ch2, 
+                 levels = c(1, 2, 3, 4, 5), 
+                 labels = c("極好", "非常好", "好", "一般", "不好"))
+
+# Ch3
+df$Ch3 <- factor(df$Ch3, 
+                 levels = c(0, 1), 
+                 labels = c("無", "有"))
+# Bd23
+df$Bd23 <- factor(df$Bd23, 
+                 levels = c(1, 2), 
+                 labels = c("女性", "男性"))
+
+# grade
+df$grade <- factor(df$grade, 
+                   levels = c(1, 3, 5), 
+                   labels = c("一年級", "三年級", "五年級"))
+
+# Sf
+df$Sf <- factor(df$Sf, 
+                levels = 1:6, 
+                labels = names(attr(df$Sf, "labels")))
+
+# Ft9
+df$Ft9_combin <- factor(df$Ft9_combin,
+                 levels = attr(df$Ft9_combin, "labels"), 
+                 labels = names(attr(df$Ft9_combin, "labels")))
+
+# Bd45_sum
+df <- df %>% mutate(Bd45_sum = Bd45_1 + Bd45_2 + Bd45_3 + 
+                            Bd45_4 + Bd45_5 + Bd45_6)
+
+# filter (Bd21)
+df <- df %>% filter(Bd21 %in% c(1, 2))
 
 ```
-
-# 描述統計  
-## 一、總體健康（Ch2）
+## 壹、總體健康
+### 一、描述統計
+#### 1. 總體健康（Ch2）
 ```{r descr_Ch2, echo=FALSE}
-df$Ch2 <- labelled(df$Ch2, 
-                   labels = c("極好" = 1, 
-                              "非常好" = 2, 
-                              "好" = 3, 
-                              "一般" = 4, 
-                              "不好" = 5), 
-                   label = "總體健康")
-
 # descr_Ch2
-a <- freq(df$Ch2, digits = 2, cum = TRUE, total = F, levels = "p", na.last = FALSE)
-kable(a)
+t <- freq(df$Ch2, plot = FALSE) %>% round(2)
+kable(t)
+```
+
+```{r plot_Ch2, fig.width=5, fig.height=4, echo=FALSE}
+d <- df %>% filter(!is.na(Ch2))
+ggplot(d, aes(Ch2, y = (..count..) / sum(..count..), fill = Ch2)) + 
+        # bar
+        geom_bar(stat = "count", colour = "black") + 
+        # text prc
+        geom_text(aes(label = paste(round((..count..) / sum(..count..) * 100, 2), " %", sep = "" ),
+                      y = (..count..) / sum(..count..)), stat= "count", vjust = -2) +
+        # text count
+        geom_text(aes(label = paste("n = ", ..count.., sep = ""),
+                      y = (..count..) / sum(..count..)), stat= "count", vjust = -.5) +
+        # labels
+        labs(x = NULL, y = "百分比", title = paste("總體健康（N = ", nrow(d), "）")) +
+        # adjust scales
+        scale_y_continuous(labels = scales::percent, expand = c(0, 0), limits = c(0, .5)) +
+        # legend
+        scale_fill_brewer(name = NULL, palette = "Greys", labels = levels(d$Ch2)) +
+        # theme
+        theme_classic() +
+        # customize
+        theme(legend.position = "top")
+```
+  
+#### 2. 總體健康（Ch2） X 性別（Bd23）
+```{r crosstab_Ch2xBd23, echo=FALSE}
+ct <- CrossTable(df$Ch2, df$Bd23, 
+                 prop.t = FALSE, prop.r = FALSE, prop.chisq = FALSE, 
+                 digits = 2, 
+                 format = "SPSS", row.labels = TRUE, 
+                 percent = TRUE, chisq = TRUE, cell.layout = FALSE)
+ct
+```
+
+```{r plot_Ch2xBd23, fig.width=7, fig.height=6, echo=FALSE}
+d <- df %>% filter(!is.na(Ch2) & !is.na(Bd23))
+ggplot(d, aes(Ch2, y = ..prop.., fill = factor(..x..), group = Bd23)) + 
+        geom_bar(stat = "count", colour = "black") + 
+        # text prc
+        geom_text(aes(label = scales::percent(..prop..),
+                      y = ..prop.. ), stat= "count", vjust = -2) + 
+        # text count
+        geom_text(aes(label = paste("n = ", ..count.., sep = ""),
+                      y = ..prop.. ), stat= "count", vjust = -.5) + 
+        # labels
+        labs(x = NULL, y = "百分比", title = "總體健康 X 性別\n") +
+        # adjust scales
+        scale_y_continuous(labels = scales::percent, expand = c(0, 0), limits = c(0, 1)) +
+        # color brewer
+        scale_fill_brewer(name = NULL, palette = "Greys", labels = levels(d$Ch2)) +
+        # grid
+        facet_grid(~ Bd23) + 
+        # theme
+        theme_classic() + 
+        # customize
+        theme(legend.position = "top")
+```
 
 
+#### 3. 總體健康（Ch2） X 身心狀況（Ch3）
+```{r crosstab_Ch2xCh3, echo=FALSE}
+
+ct <- CrossTable(df$Ch2, df$Ch3, 
+                 prop.t = FALSE, prop.r = FALSE, prop.chisq = FALSE, 
+                 digits = 2, 
+                 format = "SPSS", row.labels = TRUE, 
+                 percent = TRUE, chisq = TRUE, cell.layout = FALSE)
+ct
+```
+
+```{r plot_Ch2xCh3, fig.width=8, fig.height=6, echo=FALSE}
+d <- df %>% filter(!is.na(Ch2) & !is.na(Ch3))
+ggplot(d, aes(Ch2, y = ..prop.., fill = factor(..x..), group = Ch3)) + 
+        geom_bar(stat = "count", colour = "black") + 
+        # text prc
+        geom_text(aes(label = scales::percent(..prop..),
+                      y = ..prop.. ), stat= "count", vjust = -2) + 
+        # text count
+        geom_text(aes(label = paste("n = ", ..count.., sep = ""),
+                      y = ..prop.. ), stat= "count", vjust = -.5) + 
+        # labels
+        labs(x = NULL, y = "百分比", title = "總體健康 X 身心狀況\n") +
+        # adjust scales
+        scale_y_continuous(labels = scales::percent, expand = c(0, 0), limits = c(0, .8)) +
+        # color brewer
+        scale_fill_brewer(name = NULL, palette = "Greys", labels = levels(d$Ch2)) +
+        # grid
+        facet_grid(~ Ch3) + 
+        # theme
+        theme_classic() + 
+        # customize
+        theme(legend.position = "top")
+```
+
+
+#### 4. 總體健康（Ch2） X 年級（grade）
+```{r crosstab_Ch2xGrade, echo=FALSE}
+
+ct <- CrossTable(df$Ch2, df$grade, 
+                 prop.t = FALSE, prop.r = FALSE, prop.chisq = FALSE, 
+                 digits = 2, 
+                 format = "SPSS", row.labels = TRUE, 
+                 percent = TRUE, chisq = TRUE, cell.layout = FALSE)
+ct
+```
+
+  
+```{r plot_Ch2xgrade, fig.width=10, fig.height=6, echo=FALSE}
+d <- df %>% filter(!is.na(Ch2) & !is.na(grade))
+ggplot(d, aes(Ch2, y = ..prop.., fill = factor(..x..), group = grade)) + 
+        geom_bar(stat = "count", colour = "black") + 
+        # text prc
+        geom_text(aes(label = scales::percent(..prop..),
+                      y = ..prop.. ), stat= "count", vjust = -2) + 
+        # text count
+        geom_text(aes(label = paste("n = ", ..count.., sep = ""),
+                      y = ..prop.. ), stat= "count", vjust = -.5) + 
+        # labels
+        labs(x = NULL, y = "百分比", title = "總體健康 X 年級\n") +
+        # adjust scales
+        scale_y_continuous(labels = scales::percent, expand = c(0, 0), limits = c(0, .5)) +
+        # color brewer
+        scale_fill_brewer(name = NULL, palette = "Greys", labels = levels(d$Ch2)) +
+        # grid
+        facet_grid(~ grade) + 
+        # theme
+        theme_classic() + 
+        # customize
+        theme(legend.position = "top")
+```
+
+  
+#### 5. 總體健康（Ch2） X 家庭組織型態（Sf）
+```{r crosstab_Ch2xSf, echo=FALSE}
+options(width = 80)
+ct <- CrossTable(df$Ch2, df$Sf,
+                 prop.t = FALSE, prop.r = FALSE, prop.chisq = FALSE,
+                 digits = 2,
+                 format = "SPSS", row.labels = TRUE,
+                 percent = TRUE, chisq = F, cell.layout = FALSE)
+ct
+```
+
+  
+```{r plot_Ch2xSf, fig.width=16, fig.height=9, echo=FALSE}
+d <- df %>% filter(!is.na(Ch2) & !is.na(Sf))
+ggplot(d, aes(Ch2, y = ..prop.., fill = factor(..x..), group = Sf)) + 
+        geom_bar(stat = "count", colour = "black") + 
+        # text prc
+        geom_text(aes(label = scales::percent(..prop..),
+                      y = ..prop.. ), stat= "count", vjust = -2) + 
+        # text count
+        geom_text(aes(label = paste("n = ", ..count.., sep = ""),
+                      y = ..prop.. ), stat= "count", vjust = -.5) + 
+        # labels
+        labs(x = NULL, y = "百分比", title = "總體健康 X 家庭組織型態\n") +
+        # adjust scales
+        scale_y_continuous(labels = scales::percent, expand = c(0, 0), limits = c(0, .8)) +
+        # color brewer
+        scale_fill_brewer(name = NULL, palette = "Greys", labels = levels(d$Ch2)) +
+        # grid
+        facet_grid(~ Sf) + 
+        # theme
+        theme_classic() + 
+        # customize
+        theme(legend.position = "top")
+```
+
+  
+#### 6. 總體健康（Ch2） X 主要照顧者（Ft9）
+```{r crosstab_Ch2xFt9, echo=FALSE}
+
+ct <- CrossTable(df$Ch2, df$Ft9_combin, 
+                 prop.t = FALSE, prop.r = FALSE, prop.chisq = FALSE, 
+                 digits = 2, 
+                 format = "SPSS", row.labels = TRUE, 
+                 percent = TRUE, chisq = TRUE, cell.layout = FALSE)
+ct
+```
+
+  
+```{r plot_Ch2xFt9, fig.width=16, fig.height=9, echo=FALSE}
+d <- df %>% filter(!is.na(Ch2) & !is.na(Ft9_combin))
+ggplot(d, aes(Ch2, y = ..prop.., fill = factor(..x..), group = Ft9_combin)) + 
+        geom_bar(stat = "count", colour = "black") + 
+        # text prc
+        geom_text(aes(label = scales::percent(..prop..),
+                      y = ..prop.. ), stat= "count", vjust = -2) + 
+        # text count
+        geom_text(aes(label = paste("n = ", ..count.., sep = ""),
+                      y = ..prop.. ), stat= "count", vjust = -.5) + 
+        # labels
+        labs(x = NULL, y = "百分比", title = "總體健康 X 主要照顧者\n") +
+        # adjust scales
+        scale_y_continuous(labels = scales::percent, expand = c(0, 0), limits = c(0, .8)) +
+        # color brewer
+        scale_fill_brewer(name = NULL, palette = "Greys", labels = levels(d$Ch2)) +
+        # grid
+        facet_grid(~ Ft9_combin) + 
+        # theme
+        theme_classic() + 
+        # customize
+        theme(legend.position = "top")
+```
+
+  
+### 二、檢定分析
+#### 1. 相關（總體健康 X 年級）
+```{r cortest_Ch2xGrade, echo=FALSE}
+Ch2 <- as.integer(df$Ch2)
+grade <- as.integer(df$grade)
+cor.test(Ch2, grade, method = "spearman")
 
 ```
 
-## 二、疾病狀況（Ch3）
+#### 2. 相關（總體健康 X 攻擊行為）
+```{r cortest_Ch2xAttack, echo=FALSE}
+Ch2 <- as.integer(df$Ch2)
+Ch4_attack <- df$Ch4_attack_sum
+cor.test(Ch2, Ch4_attack, method = "spearman")
+cor(Ch2, Ch4_attack, method = "spearman", use = "na.or.complete")
 
+```
+
+#### 3. 相關（總體健康 X 社交問題）
+```{r cortest_Ch2xSoc, echo=FALSE}
+Ch2 <- as.integer(df$Ch2)
+Ch4_soc <- df$Ch4_soc_sum
+cor.test(Ch2, Ch4_soc, method = "spearman", continuity = F, alternative = "greater")
+
+```
+
+#### 4. 相關（總體健康 X 注意力問題）
+```{r cortest_Ch2xAttention, echo=FALSE}
+Ch2 <- as.integer(df$Ch2)
+Ch4_attention <- df$Ch4_attention_sum
+cor.test(Ch2, Ch4_attention, method = "spearman", continuity = F, alternative = "greater")
+
+```
+
+#### 5. 相關（總體健康 X 退縮）
+```{r cortest_Ch2xWithdrawn, echo=FALSE}
+Ch2 <- as.integer(df$Ch2)
+Ch4_withdrawn <- df$Ch4_withdrawn_sum
+cor.test(Ch2, Ch4_withdrawn, method = "spearman")
+```
+
+#### 6. 相關矩陣
+```{r corrmatrix, fig.width=7, fig.height=6 ,echo=FALSE}
+d <- df %>% select(Ch2, Ch4_attack_sum, 
+                   Bd44, Bd43_sum, Bd45_sum, Ft7_sum) %>% 
+        mutate_if(is.factor, as.numeric)
+chart.Correlation(d, histogram = FALSE, method = "spearman")
+```
+
+
+## 貳、疾病狀況（Ch3）
 ```{r descr_Ch3, echo=FALSE}
-# labels
-df$Ch3 <- labelled(df$Ch3, 
-                   labels = c("沒有" = 0, 
-                              "有" = 1),  
-                   label = "總體健康")
 # descr_Ch3
-a <- freq(df$Ch3, digits = 2, cum = T, total = F, levels = "p", na.last = FALSE)
-kable(a)
+t <- freq(df$Ch3, plot = FALSE) %>% round(2)
+kable(t)
+```
+
+```{r plot_Ch3, fig.width=3, fig.height=4, echo=FALSE}
+d <- df %>% filter(!is.na(Ch3))
+ggplot(d, aes(Ch3, y = (..count..) / sum(..count..), fill = Ch3)) + 
+        # bar
+        geom_bar(stat = "count", colour = "black") + 
+        # text prc
+        geom_text(aes(label = paste(round((..count..) / sum(..count..) * 100, 2), " %", sep = "" ),
+                      y = (..count..) / sum(..count..)), stat= "count", vjust = -2) +
+        # text count
+        geom_text(aes(label = paste("n = ", ..count.., sep = ""),
+                      y = (..count..) / sum(..count..)), stat= "count", vjust = -.5) +
+        # labels
+        labs(x = NULL, y = "百分比", title = paste("身心狀況（N = ", nrow(d), "）")) +
+        # adjust scales
+        scale_y_continuous(labels = scales::percent, expand = c(0, 0), limits = c(0, 1.2)) +
+        # legend
+        scale_fill_brewer(name = NULL, palette = "Greys", labels = levels(d$Ch3)) +
+        # theme
+        theme_classic() +
+        # customize
+        theme(legend.position = "top")
 
 ```
 
