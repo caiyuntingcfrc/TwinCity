@@ -49,7 +49,7 @@ df$Ft9_combin <- factor(df$Ft9_combin,
 # vanilla automation ------------------------------------------------------
 
 d <- df %>% filter(Ft9_combin %in% c("¥À¿Ë", "¤÷¿Ë", "¤÷¥À"))
-var1 <- "Bd44"
+var1 <- "Ch4_attack_sum"
 group <- "Ft9_combin"
 sig <- 0.05
 
