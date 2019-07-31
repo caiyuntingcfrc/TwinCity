@@ -35,7 +35,7 @@ options(scipen = 999)
 
 ```{r read, include=FALSE}
 # read file
-pathfile <- "~/Documents/Rdata/twin cities/資料檔/11. Taipei_all.sav"
+pathfile <- "D:/R_wd/Twin Cities/11. Taipei_all.sav"
 df <- read_sav(pathfile , encoding = "UTF-8")
 
 # Ch2
@@ -310,7 +310,7 @@ cor.test(Ch2, Ch4_attack, method = "spearman")
 ```{r cortest_Ch2xSoc, echo=FALSE}
 Ch2 <- as.integer(df$Ch2)
 Ch4_soc <- df$Ch4_soc_sum
-cor.test(Ch2, Ch4_soc, method = "spearman", continuity = F, alternative = "greater")
+cor.test(Ch2, Ch4_soc, method = "spearman")
 
 ```
 
@@ -318,7 +318,7 @@ cor.test(Ch2, Ch4_soc, method = "spearman", continuity = F, alternative = "great
 ```{r cortest_Ch2xAttention, echo=FALSE}
 Ch2 <- as.integer(df$Ch2)
 Ch4_attention <- df$Ch4_attention_sum
-cor.test(Ch2, Ch4_attention, method = "spearman", continuity = F, alternative = "greater")
+cor.test(Ch2, Ch4_attention, method = "spearman")
 
 ```
 
@@ -329,10 +329,11 @@ Ch4_withdrawn <- df$Ch4_withdrawn_sum
 cor.test(Ch2, Ch4_withdrawn, method = "spearman")
 ```
 
-#### 6. 相關矩陣
+#### 6. 相關矩陣：親子衝突（Ft7）、兒童行為（攻擊、社交、注意力、退縮）
 ```{r corrmatrix, fig.width=7, fig.height=6 ,echo=FALSE}
-d <- df %>% select(Ch2, Ch4_attack_sum, 
-                   Bd44, Bd43_sum, Bd45_sum, Ft7_sum) %>% 
+d <- df %>% select(Ft7_sum, 
+                   Ch4_attack_sum, Ch4_soc_sum, 
+                   Ch4_attention_sum, Ch4_withdrawn_sum) %>% 
         mutate_if(is.factor, as.numeric)
 chart.Correlation(d, histogram = FALSE, method = "spearman")
 ```
@@ -362,32 +363,6 @@ t <- questionr::freq(df$Ch3) %>% round(2)
 kable(t)
 ```
 
-```{r plot_Ch3, fig.width=3, fig.height=4, echo=FALSE}
-d <- df %>% filter(!is.na(Ch3))
-ggplot(d, aes(Ch3, y = (..count..) / sum(..count..), fill = Ch3)) + 
-        # bar
-        geom_bar(stat = "count", colour = "black") + 
-        # text prc
-        geom_text(aes(label = paste(round((..count..) / sum(..count..) * 100, 2), " %", sep = "" ),
-                      y = (..count..) / sum(..count..)), stat= "count", vjust = -2) +
-        # text count
-        geom_text(aes(label = paste("n = ", ..count.., sep = ""),
-                      y = (..count..) / sum(..count..)), stat= "count", vjust = -.5) +
-        # labels
-        labs(x = NULL, y = "百分比", title = paste("身心狀況（N = ", nrow(d), "）")) +
-        # adjust scales
-        scale_y_continuous(labels = scales::percent, expand = c(0, 0), limits = c(0, 1.2)) +
-        # legend
-        scale_fill_brewer(name = NULL, palette = "Greys", labels = levels(d$Ch3)) +
-        # theme
-        theme_classic() +
-        # customize
-        theme(legend.position = "top", text = element_text(family = "Noto Serif CJK TC Medium"))
-
-```
-
-
-### 二、檢定分析
 #### 1. 均值顯著性檢定（疾病狀況 X 攻擊行為）
 ```{r ttest_Ch3xAttack, echo=FALSE}
 df$Ch3 <- as.integer(df$Ch3)
