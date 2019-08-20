@@ -9,7 +9,7 @@ setwd("D:/R_wd/Twin Cities/")
 list.packages <- c("tidyverse", "magrittr", "haven", 
                    "gridExtra", "summarytools", "tabulizer", 
                    "labelled", "DescTools", "userfriendlyscience", 
-                   "stargazer", "sjPlot")
+                   "stargazer", "sjPlot", "sjlabelled")
 # check if the packages are installed
 new.packages <- list.packages[!(list.packages %in% installed.packages()[ , "Package"])]
 # install new packages
@@ -28,10 +28,17 @@ st_options(style = "simple",
 # Read the Data File ------------------------------------------------------
 
 # read .sav file
-filepath <- "Taipei_all.sav"
-df <- read_sav(filepath, encoding = "UTF-8")
-
-
+filepath <- "3.雙城正式_全年級20180704final_han&Lung.sav"
+df <- haven::read_sav(filepath, user_na = TRUE, encoding = "UTF-8")
+# df <- foreign::read.spss(filepath, use.missings = FALSE, reencode = "UTF-8", 
+#                          to.data.frame = TRUE, use.value.labels = FALSE, 
+#                          sub = NA)
+# n <- names(df)
+# for(i in 1:length(n)) {
+#         attr(df[[n[i]]], "na_values") <- NULL 
+#         attr(df[[n[i]]], "format.spss") <- NULL 
+#         attr(df[[n[i]]], "display_width") <- NULL 
+#         }
 # Structure of Families ---------------------------------------------------
 
 # recode parents and grand parents
@@ -95,13 +102,18 @@ df <- df %>% select(-c(bd25_dad, bd25_mom, bd25_grand,
                        Sf_sp, Sf_other, sp))
 
 # add attributes
-df$Sf <- labelled(df$Sf, c("single parent" = 1, 
-                           "nuclear" = 2, 
-                           "three generation" = 3, 
-                           "grand parenting" = 4, 
-                           "others" = 5, 
-                           "single_cohabitating" = 6), 
+df$Sf <- labelled(df$Sf, c("single parent" = 1,
+                           "nuclear" = 2,
+                           "three generation" = 3,
+                           "grand parenting" = 4,
+                           "others" = 5,
+                           "single_cohabitating" = 6),
                   label = "Structure of Families")
 attr(df$Sf, "format.spss") = "F8.2"
+
+d <- enframe(df$Sf, name = NULL) %>% replace(., is.na(.), 99)
+
+# df[] <-  lapply(df, function(x) iconv(x, to="UTF-8"))
 # save the file
-write_sav(df, path = "Taipei_all.sav", compress = FALSE)
+# sjlabelled::write_spss(df, path = "D:/t.sav")
+write_sav(d, "d_sf.sav", compress = F)

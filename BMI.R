@@ -27,17 +27,14 @@ st_options(style = "simple",
 # read sav file -----------------------------------------------------------
 
 # data from Shanghai
-filepath <- "1.上海_2014r2.sav"
-df <- read_spss(filepath)
+filepath <- "working/3.雙城正式_全年級20180704final_han&Lung.sav"
+df <- haven::read_spss(filepath)
 rm(filepath)
-
-# compute realage
-Birthdate <- df$Birthdate
 
 # extract the bmi table ---------------------------------------------------
 
 # read the pdf file
-filepath <- "bmi/衛福部_2013_兒童與青少年生長身體質量指數(bmi)建議值.pdf"
+filepath <- "BMI/衛福部_2013_兒童與青少年生長身體質量指數(bmi)建議值.pdf"
 tbl_bmi <- extract_tables(file = filepath, encoding = "UTF-8") %>% 
         .[[1]] %>% 
         .[-(1:4), ]
@@ -119,7 +116,9 @@ df$bmicat <- labelled(df$bmicat, c("underweight" = 1,
                                    "obese" = 4), 
                       label = "Body Mass Index categories")
 attr(df$bmicat, "format.spss") <- "F8.2"
+ 
 
 # save file ---------------------------------------------------------------
-Taipei_all <- df
-write_sav(df, "Taipei_all.sav", compress = FALSE)
+d_bmi <- tibble(df$bmi, df$bmicat) %>% 
+        replace(., is.na(.), 99)
+write_sav(d_bmi, "d_bmi.sav", compress = FALSE)
