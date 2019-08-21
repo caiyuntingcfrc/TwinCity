@@ -6,12 +6,12 @@ rm(list = ls())
 # clean console
 cat("\014")
 #
-setwd("~/R data/twin/資料檔/")
+setwd("D:/R_wd/Twin Cities/working/")
 # list of packages
 list.packages <- c("tidyverse", "magrittr", "haven", 
                    "gridExtra", "tabulizer", "knitr",
                    "labelled", "DescTools", "ggplot2", 
-                   "stargazer", "sjPlot", "arsenal", 
+                   "sjPlot", "arsenal", "ggstatsplot", 
                    "questionr", "descr", "PerformanceAnalytics", 
                    "car", "userfriendlyscience")
 # check if the packages are installed
@@ -29,7 +29,7 @@ options(scipen = 999)
 # read file ---------------------------------------------------------------
 
 # df
-df <- read_sav("11. Taipei_all.sav")
+df <- read_sav("11. Taipei_all_temp.sav")
 
 # # Ch2
 # df$Ch2 <- factor(df$Ch2, 
@@ -41,16 +41,16 @@ df$Ch3 <- factor(df$Ch3,
                  levels = c(0, 1), 
                  labels = c("無", "有"))
 
-# Ft9
-df$Ft9_combin <- factor(df$Ft9_combin,
-                        levels = attr(df$Ft9_combin, "labels"), 
-                        labels = names(attr(df$Ft9_combin, "labels")))
+# # Ft9
+# df$Ft9 <- factor(df$Ft9,
+#                         levels = attr(df$Ft9, "labels"), 
+#                         labels = names(attr(df$Ft9, "labels")))
 
 # vanilla automation ------------------------------------------------------
 
-d <- df %>% filter(Ft9_combin %in% c("母親", "父親", "父母"))
-var1 <- "Ch4_attack_sum"
-group <- "Ft9_combin"
+d <- df %>% filter(Ft9 %in% c(1, 2, 3)) %>% filter(Bd30 == 1)
+var1 <- "Ch4_attention_sum"
+group <- "Ft9"
 sig <- 0.05
 
 var <- LeveneTest(d[[var1]], group = d[[group]])
@@ -58,18 +58,22 @@ print(var)
 
 if(var[ , 3][1] < sig) {
         # HoV = False
-        a <- oneway.test(d[[var1]] ~ d[[group]])
+        a <- stats::oneway.test(d[[var1]] ~ d[[group]])
         print(a)
         # if sig. then post-hoc
         if(a[3] < sig) {
-                out_post <- aov(d[[var1]] ~ d[[group]])
-                PostHocTest(out_post, method = "scheffe") }
+                d <- d %>% filter(!is.na(d[[var1]]) & !is.na(d[[group]]))
+                userfriendlyscience::posthocTGH(y = d[[var1]], 
+                                            x = as.factor(d[[group]]),
+                                            digits = 3,
+                                            method = "games-howell")
+                }
         # Hov = TRUE
         } else { 
                 a <- summary(aov(d[[var1]] ~ d[[group]]))
                 print(a)
                 # if sig. then post-hoc
                 if(a[[1]]$`Pr(>F)`[1] < sig) {
-                        out_post <- aov(d[[var1]] ~ d[[group]])
-                        PostHocTest(out_post, method = "scheffe") }
-                }
+                        out_post <- aov(d[[var1]] ~ as.factor(d[[group]]))
+                        DescTools::PostHocTest(out_post, method = "scheffe") }
+        }
