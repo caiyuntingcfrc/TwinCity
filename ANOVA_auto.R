@@ -48,27 +48,70 @@ df$Ch3 <- factor(df$Ch3,
 
 # vanilla automation ------------------------------------------------------
 
-d <- df %>% filter(Ft9 %in% c(1, 2, 3)) %>% filter(Bd30 == 1)
-var1 <- "Ch4_attention_sum"
-group <- "Ft9"
-sig <- 0.05
+d <- df %>% 
+        filter(Ft9 %in% c(1, 2, 3)) %>% 
+        filter(Bd21 %in% c(1, 2)) %>% 
+        filter(Bd30 == 1)
 
-var <- LeveneTest(d[[var1]], group = d[[group]])
+# list of packages
+list.packages <- c("tidyverse", "magrittr", "DescTools", "userfriendlyscience")
+# check if the packages are installed
+new.packages <- list.packages[!(list.packages %in% installed.packages()[ , "Package"])]
+# install new packages
+if(length(new.packages)) install.packages(new.packages)
+# remove lists
+rm(list.packages, new.packages)
+# options
+options(scipen = 999)
+
+aov_auto <- function(data, var1, group, sig = 0.05) {
+        # Test of Homogeneity of Variance
+        var <- DescTools::LeveneTest(data[[var1]], 
+                                     group = as.factor(data[[group]]))
+        print(var)
+        
+        if(var[ , 3][1] < sig) {
+                # Homogeneity of Variance = FALSE
+                out_aov <- stats::oneway.test(data[[var1]] ~ data[[group]])
+                print(out_aov)
+                # if sig. then post-hoc (Games-Howell)
+                if(out_aov[3] < sig) {
+                        data <- data %>% 
+                                filter(!is.na(data[[var1]]) & !is.na(data[[group]]))
+                        userfriendlyscience::posthocTGH(y = data[[var1]], 
+                                                        x = as.factor(data[[group]]),
+                                                        digits = 3,
+                                                        method = "games-howell")
+                        }
+                # Homogeneity of Variance = TRUE
+                } else { 
+                        out_aov <- summary(aov(d[[var1]] ~ d[[group]]))
+                        print(out_aov)
+                        # if sig. then post-hoc
+                        if(out_aov[[1]]$`Pr(>F)`[1] < sig) {
+                                out_post <- aov(d[[var1]] ~ as.factor(d[[group]]))
+                                DescTools::PostHocTest(out_post, method = "scheffe") 
+                                }
+                        }
+        }
+
+var <- DescTools::LeveneTest(data[[var1]], group = data[[group]])
 print(var)
 
 if(var[ , 3][1] < sig) {
-        # HoV = False
-        a <- stats::oneway.test(d[[var1]] ~ d[[group]])
-        print(a)
-        # if sig. then post-hoc
-        if(a[3] < sig) {
-                d <- d %>% filter(!is.na(d[[var1]]) & !is.na(d[[group]]))
-                userfriendlyscience::posthocTGH(y = d[[var1]], 
-                                            x = as.factor(d[[group]]),
+        # Homogeneity of Variance = FALSE
+        out_aov <- stats::oneway.test(data[[var1]] ~ data[[group]])
+        print(out_aov)
+        # if sig. then post-hoc (Games-Howell)
+        if(out_aov[3] < sig) {
+                data <- data %>% 
+                        filter(!is.na(data[[var1]]) & !is.na(data[[group]]))
+                userfriendlyscience::posthocTGH(y = data[[var1]], 
+                                            x = as.factor(data[[group]]),
                                             digits = 3,
                                             method = "games-howell")
                 }
-        # Hov = TRUE
+        # Homogeneity of Variance = TRUE
         } else { 
                 a <- summary(aov(d[[var1]] ~ d[[group]]))
                 print(a)
@@ -77,3 +120,4 @@ if(var[ , 3][1] < sig) {
                         out_post <- aov(d[[var1]] ~ as.factor(d[[group]]))
                         DescTools::PostHocTest(out_post, method = "scheffe") }
         }
+
