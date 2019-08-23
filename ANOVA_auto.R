@@ -90,7 +90,7 @@ aov_auto <- function(data, var1, group, sig = 0.05) {
                         # if sig. then post-hoc
                         if(out_aov[[1]]$`Pr(>F)`[1] < sig) {
                                 out_post <- aov(d[[var1]] ~ as.factor(d[[group]]))
-                                DescTools::PostHocTest(out_post, method = "scheffe") 
+                                DescTools::PostHocTest(out_post, method = "hsd") 
                                 }
                         }
         }

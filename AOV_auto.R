@@ -30,12 +30,12 @@ aov_auto <- function(data, var1, group, sig = 0.05) {
                         }
                 # Homogeneity of Variance = TRUE
                 } else { 
-                        out_aov <- summary(aov(d[[var1]] ~ d[[group]]))
+                        out <- aov(data[[var1]] ~ as.factor(data[[group]]))
+                        out_aov <- summary(out)
                         print(out_aov)
                         # if sig. then post-hoc
                         if(out_aov[[1]]$`Pr(>F)`[1] < sig) {
-                                out_post <- aov(d[[var1]] ~ as.factor(d[[group]]))
-                                DescTools::PostHocTest(out_post, method = "scheffe") 
+                                DescTools::PostHocTest(out, method = "scheffe") 
                                 }
                         }
 }
