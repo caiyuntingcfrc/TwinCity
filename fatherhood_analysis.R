@@ -1,48 +1,43 @@
+
+# prep --------------------------------------------------------------------
+
 rm(list = ls())
 cat("\014")
 library(tidyverse)
-library(haven)
-
 source("C:/Users/user/Documents/Github_CFRC/TwinCity/AOV_auto.R")
+source("C:/Users/user/Documents/Github_CFRC/TwinCity/t_auto.R")
+
+# read data file ----------------------------------------------------------
+
+load("Twin Cities/working/Taipei_all_tmp.RData")
+
+# df <- haven::read_sav("Twin Cities/working/11. Taipei_all_temp.sav", 
+#                encoding = "UTF-8") 
+# 
+# save(df, file = "Taipei_all_tmp.RData")
 
 # standardized scores -----------------------------------------------------
 
-df <- read_sav("Twin Cities/working/11. Taipei_all_temp.sav", encoding = "UTF-8") 
         # mutate(Ch4_aggressive_sum_s = scale(Ch4_aggressive_sum)[ , 1],
         #        Ch4_soc_sum_s = scale(Ch4_soc_sum)[ , 1],
         #        Ch4_attention_sum_s = scale(Ch4_attention_sum)[ , 1],
         #        Ch4_soc_sum_s = scale(Ch4_soc_sum)[ , 1])
 
 
-# filter ------------------------------------------------------------------
+# [1] (Ch4) compare between caregivers ------------------------------------
 
-d <- df %>% 
+# data
+d.care <- df %>% 
+        # care givers are both, the father and the mother
         filter(Ft9 %in% c(1, 2, 3)) %>% 
+        # respondants are the father and the mother
         filter(Bd21 %in% c(1, 2)) %>% 
+        # marital status: married
         filter(Bd30 == 1)
-
-# corr --------------------------------------------------------------------
-
-d.corr <- d %>% 
-        select(contains("_sum")) %>% 
-        select(-c(Bd43_sum, Ft7_sum))
-
-PerformanceAnalytics::chart.Correlation(d.corr, 
-                                        histogram = FALSE,
-                                        method = "pearson")
 
 # 1. aggressive -----------------------------------------------------------
 
-# remove outliers agg
-agg.IQR <- IQR(d$Ch4_aggressive_sum, na.rm = TRUE)
-fence_u <- quantile(d$Ch4_aggressive_sum, na.rm = TRUE)[4] + 1.5 * agg.IQR
-fence_l <- quantile(d$Ch4_aggressive_sum, na.rm = TRUE)[2] - 1.5 * agg.IQR
-
-d1 <- d %>% 
-        filter(between(Ch4_aggressive_sum, fence_l, fence_u))
-
-aov_auto(data = d, var1 = "Ch4_aggressive_sum", group = "Ft9")
-aov_auto(data = d1, var1 = "Ch4_aggressive_sum", group = "Ft9")
+aov_auto(data = d.care, var1 = "Ch4_aggressive_sum", group = "Ft9")
 
 # ggbetweenstats(data = d1, 
 #                x = Ft9, 
@@ -55,175 +50,205 @@ aov_auto(data = d1, var1 = "Ch4_aggressive_sum", group = "Ft9")
 
 # 2. soc ------------------------------------------------------------------
 
-# remove outliers agg
-soc.IQR <- IQR(d$Ch4_soc_sum, na.rm = TRUE)
-fence_u <- quantile(d$Ch4_soc_sum, na.rm = TRUE)[4] + 1.5 * soc.IQR
-fence_l <- quantile(d$Ch4_soc_sum, na.rm = TRUE)[2] - 1.5 * soc.IQR
-
-d2 <- d %>% 
-        filter(between(Ch4_soc_sum, fence_l, fence_u))
-
-aov_auto(data = d, var1 = "Ch4_soc_sum", group = "Ft9")
-aov_auto(data = d2, var1 = "Ch4_soc_sum", group = "Ft9")
-
+aov_auto(data = d.care, var1 = "Ch4_soc_sum", group = "Ft9")
 
 # 3. attention ------------------------------------------------------------
 
-# remove outliers agg
-attention.IQR <- IQR(d$Ch4_attention_sum, na.rm = TRUE)
-fence_u <- quantile(d$Ch4_attention_sum, na.rm = TRUE)[4] + 1.5 * attention.IQR
-fence_l <- quantile(d$Ch4_attention_sum, na.rm = TRUE)[2] - 1.5 * attention.IQR
-
-d3 <- d %>% 
-        filter(between(Ch4_attention_sum, fence_l, fence_u))
-
-aov_auto(data = d, var1 = "Ch4_attention_sum", group = "Ft9")
-aov_auto(data = d3, var1 = "Ch4_attention_sum", group = "Ft9")
-
+aov_auto(data = d.care, var1 = "Ch4_attention_sum", group = "Ft9")
 
 # 4. withdrawal -----------------------------------------------------------
 
-# remove outliers agg
-withdrawal.IQR <- IQR(d$Ch4_withdrawal_sum, na.rm = TRUE)
-fence_u <- quantile(d$Ch4_withdrawal_sum, na.rm = TRUE)[4] + 1.5 * withdrawal.IQR
-fence_l <- quantile(d$Ch4_withdrawal_sum, na.rm = TRUE)[2] - 1.5 * withdrawal.IQR
+aov_auto(data = d.care, var1 = "Ch4_withdrawal_sum", group = "Ft9")
 
-d4 <- d %>% 
-        filter(between(Ch4_withdrawal_sum, fence_l, fence_u))
+# 5. Ft8 ------------------------------------------------------------------
 
-aov_auto(data = d, var1 = "Ch4_withdrawal_sum", group = "Ft9")
-aov_auto(data = d4, var1 = "Ch4_withdrawal_sum", group = "Ft9")
+# achievement
+aov_auto(data = d.care, var1 = "Ft8_achievement_sum", group = "Ft9")
+# warmth
+aov_auto(data = d.care, var1 = "Ft8_warmth_sum", group = "Ft9")
+# monitoring
+aov_auto(data = d.care, var1 = "Ft8_monitoring_sum", group = "Ft9")
+# harsh
+aov_auto(data = d.care, var1 = "Ft8_harsh_sum", group = "Ft9")
+# indulgence
+aov_auto(data = d.care, var1 = "Ft8_indulgence_sum", group = "Ft9")
+# autonomy
+aov_auto(data = d.care, var1 = "Ft8_autonomy_sum", group = "Ft9")
 
-
-# Ft8 ---------------------------------------------------------------------
-
-aov_auto(data = d, var1 = "Ft8_achievement_sum", group = "Ft9")
-aov_auto(data = d, var1 = "Ft8_warmth_sum", group = "Ft9")
-aov_auto(data = d, var1 = "Ft8_monitoring_sum", group = "Ft9")
-aov_auto(data = d, var1 = "Ft8_harsh_sum", group = "Ft9")
-aov_auto(data = d, var1 = "Ft8_indulgence_sum", group = "Ft9")
-aov_auto(data = d, var1 = "Ft8_autonomy_sum", group = "Ft9")
-
-
-# compare co-p ------------------------------------------------------------
+# [2] (Ch4) compare within co-parenting -----------------------------------
 
 # data
 d.co <- df %>% 
+        # caregivers are both
         filter(Ft9 == 1) %>% 
+        # respondants are mother(1) and father(2)
         filter(Bd21 %in% c(1, 2)) %>% 
+        # marital status: married
         filter(Bd30 == 1)
 
-# 1. agg
-DescTools::LeveneTest(y = d.co$Ch4_aggressive_sum, 
-                      group = d.co$Bd21)
-t1 <- d.co %>% filter(Bd21 == 1) %>% .$Ch4_aggressive_sum
-t2 <- d.co %>% filter(Bd21 == 2) %>% .$Ch4_aggressive_sum
-t.test(t1, t2, alternative = "less", var.equal = FALSE)
-# eff
-effsize::cohen.d(as.numeric(Ch4_aggressive_sum) ~ Bd21, 
+# group size
+d.co %>% group_by(Bd21) %>% group_size()
+
+# 1. agg ------------------------------------------------------------------
+
+t_auto(data = d.co, 
+       var = "Ch4_aggressive_sum", 
+       group = "Bd21", 
+       alternative = "less")
+
+# effect size
+effsize::cohen.d(as.numeric(Ch4_aggressive_sum) ~ as.factor(Bd21), 
                  data = d.co,
                  pooled = TRUE, 
                  na.rm = TRUE, 
-                 paired = FALSE)
+                 paired = FALSE, 
+                 hedges.correction = F)
 
-# 2. soc
-DescTools::LeveneTest(y = d.co$Ch4_soc_sum, 
-                      group = d.co$Bd21)
-t1 <- d.co %>% filter(Bd21 == 1) %>% .$Ch4_soc_sum
-t2 <- d.co %>% filter(Bd21 == 2) %>% .$Ch4_soc_sum
-t.test(t1, t2, alternative = "less", var.equal = TRUE)
-# eff
+# 2. soc ------------------------------------------------------------------
+
+t_auto(data = d.co,
+       var = "Ch4_soc_sum", 
+       group = "Bd21", 
+       alternative = "less")
+
+# effect size
 effsize::cohen.d(as.numeric(Ch4_soc_sum) ~ Bd21, 
                  data = d.co,
                  pooled = TRUE, 
                  na.rm = TRUE, 
                  paired = FALSE)
 
-# 3. att
-DescTools::LeveneTest(y = d.co$Ch4_attention_sum, 
-                      group = d.co$Bd21)
-t1 <- d.co %>% filter(Bd21 == 1) %>% .$Ch4_attention_sum
-t2 <- d.co %>% filter(Bd21 == 2) %>% .$Ch4_attention_sum
-t.test(t1, t2, alternative = "less", var.equal = TRUE)
-# eff
+# 3. attention ------------------------------------------------------------
+
+t_auto(data = d.co,
+       var = "Ch4_attention_sum", 
+       group = "Bd21", 
+       alternative = "less")
+
+# effect size
 effsize::cohen.d(as.integer(Ch4_attention_sum) ~ Bd21, 
                  data = d.co,
                  na.rm = TRUE, 
                  paired = FALSE)
 
-# 4. Withdrawal
-DescTools::LeveneTest(y = d.co$Ch4_withdrawal_sum, 
-                      group = d.co$Bd21)
-t1 <- d.co %>% filter(Bd21 == 1) %>% .$Ch4_withdrawal_sum
-t2 <- d.co %>% filter(Bd21 == 2) %>% .$Ch4_withdrawal_sum
-t.test(t1, t2, alternative = "less", var.equal = FALSE)
-# eff
+# 4. withdrawal -----------------------------------------------------------
+
+t_auto(data = d.co,
+       var = "Ch4_withdrawal_sum", 
+       group = "Bd21", 
+       alternative = "less")
+
+# effect size
 effsize::cohen.d(as.integer(Ch4_withdrawal_sum) ~ Bd21, 
                  data = d.co,
                  na.rm = TRUE, 
                  paired = FALSE)
 
-aov_auto(d.co, var1 = "Ch4_aggressive_sum", group = "Bd21")
-aov_auto(d.co, var1 = "Ch4_soc_sum", group = "Bd21")
-aov_auto(d.co, var1 = "Ch4_attention_sum", group = "Bd21")
-aov_auto(d.co, var1 = "Ch4_withdrawal_sum", group = "Bd21")
 
-
-
-# compare co-p-m ----------------------------------------------------------
+# [3] (Ch4) compare both with the mother (within the mother) --------------
 
 # data
 d.co.m <- df %>% 
+        # caregivers are both and the mother
         filter(Ft9 %in% c(1, 3)) %>% 
+        # respondant is the mother
         filter(Bd21 == 1) %>% 
+        # marital status: married
         filter(Bd30 == 1)
 
-# 1. agg
-DescTools::LeveneTest(y = d.co.m$Ch4_aggressive_sum, 
-                      group = d.co.m$Ft9)
-t1 <- d.co.m %>% filter(Ft9 == 1) %>% .$Ch4_aggressive_sum
-t2 <- d.co.m %>% filter(Ft9 == 3) %>% .$Ch4_aggressive_sum
-t.test(t1, t2, alternative = "less", var.equal = FALSE)
-# eff
+# 1. agg ------------------------------------------------------------------
+t_auto(data = d.co.m, 
+       var = "Ch4_aggressive_sum", 
+       group = "Ft9", 
+       alternative = "less")
+
+# effect size
 effsize::cohen.d(as.numeric(Ch4_aggressive_sum) ~ Ft9, 
                  data = d.co.m,
                  pooled = TRUE, 
                  na.rm = TRUE, 
                  paired = FALSE)
-# 2. soc
-DescTools::LeveneTest(y = d.co.m$Ch4_soc_sum, 
-                      group = d.co.m$Ft9)
-t1 <- d.co.m %>% filter(Ft9 == 1) %>% .$Ch4_soc_sum
-t2 <- d.co.m %>% filter(Ft9 == 3) %>% .$Ch4_soc_sum
-t.test(t1, t2, alternative = "less", var.equal = TRUE)
-# eff
+
+# 2. soc ------------------------------------------------------------------
+t_auto(data = d.co.m, 
+       var = "Ch4_soc_sum", 
+       group = "Ft9", 
+       alternative = "less")
+# effect size
 effsize::cohen.d(as.numeric(Ch4_soc_sum) ~ Ft9, 
                  data = d.co.m,
                  pooled = TRUE, 
                  na.rm = TRUE, 
                  paired = FALSE)
-# 3. attention
-DescTools::LeveneTest(y = d.co.m$Ch4_attention_sum, 
-                      group = d.co.m$Ft9)
-t1 <- d.co.m %>% filter(Ft9 == 1) %>% .$Ch4_attention_sum
-t2 <- d.co.m %>% filter(Ft9 == 3) %>% .$Ch4_attention_sum
-t.test(t1, t2, alternative = "less", var.equal = TRUE)
-# eff
+
+# 3. attention ------------------------------------------------------------
+t_auto(data = d.co.m, 
+       var = "Ch4_attention_sum", 
+       group = "Ft9", 
+       alternative = "less")
+
+# effect size
 effsize::cohen.d(as.numeric(Ch4_attention_sum) ~ Ft9, 
                  data = d.co.m,
                  pooled = TRUE, 
                  na.rm = TRUE, 
                  paired = FALSE)
-# 4. withdrawal
-DescTools::LeveneTest(y = d.co.m$Ch4_withdrawal_sum, 
-                      group = d.co.m$Ft9)
-t1 <- d.co.m %>% filter(Ft9 == 1) %>% .$Ch4_withdrawal_sum       
-t2 <- d.co.m %>% filter(Ft9 == 3) %>% .$Ch4_withdrawal_sum
-t.test(t1, t2, alternative = "less", var.equal = TRUE)
-# eff
+
+# 4. withdrawal -----------------------------------------------------------
+t_auto(data = d.co.m, 
+       var = "Ch4_withdrawal_sum", 
+       group = "Ft9", 
+       alternative = "less")
+# effect size
 effsize::cohen.d(as.numeric(Ch4_withdrawal_sum) ~ Ft9, 
                  data = d.co.m,
                  pooled = TRUE, 
                  na.rm = TRUE, 
                  paired = FALSE)
 
+
+
+# [4] (Ft15) reading books ------------------------------------------------
+
+# 1. compare between caregivers -------------------------------------------
+
+# data = d.care
+aov_auto(data = d.care, 
+         var1 = "Ft15", 
+         group = "Ft9")
+
+# 2. compare within co-parenting ------------------------------------------
+
+# 
+t_auto(data = d.co, 
+       var = "Ft15", 
+       group = "Bd21", 
+       alternative = "greater")
+
+
+# [5] Bd43 ----------------------------------------------------------------
+
+
+# 1. compare between caregivers -------------------------------------------
+
+# 1 > 3 > 2 (both > the mother > the father)
+aov_auto(data = d.care, 
+         var1 = "Bd43_sum", 
+         group = "Ft9")
+
+# 2. correlation between Bd43 and Ch4 -------------------------------------
+
+# data
+d.corr <- df %>% 
+        # care givers are both, the father and the mother
+        filter(Ft9 %in% c(1, 2, 3)) %>% 
+        # respondants are the father and the mother
+        filter(Bd21 %in% c(1, 2)) %>% 
+        # marital status: married
+        filter(Bd30 == 1) %>% 
+        # select
+        select(matches("Ch4_.*_sum|Bd43_sum"))
+# no strong correlation
+PerformanceAnalytics::chart.Correlation(d.corr, 
+                                        histogram = FALSE, 
+                                        method = "spearman")
