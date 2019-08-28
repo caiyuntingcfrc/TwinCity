@@ -214,6 +214,13 @@ effsize::cohen.d(as.numeric(Ch4_withdrawal_sum) ~ Ft9,
 
 # 1. agg ------------------------------------------------------------------
 
+d.care.soc <- d.care %>% 
+        mutate(Bd43_G = case_when(Bd43_sum >= 6 & Bd43_sum < 10 ~ 1, 
+                                  Bd43_sum >= 10 & Bd43_sum < 14 ~ 2, 
+                                  Bd43_sum >= 14 & Bd43_sum <= 18 ~ 3)) %>% 
+        # as.factor
+        mutate_at(vars(matches("Bd43_G")), as.factor)
+
 aov(Ch4_aggressive_sum ~ Ft9 * Bd21, data = d.care.soc) %>% summary()
 car::Anova(aov(Ch4_aggressive_sum ~ Ft9 + Bd21, data = d.care.soc), 
            type = "II")
