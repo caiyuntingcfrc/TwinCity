@@ -330,7 +330,12 @@ d.care.soc <- d.care %>%
                                   Bd43_sum >= 14 & Bd43_sum <= 18 ~ 3)) %>% 
         # as.factor
         mutate_at(vars(matches("Bd43_G")), as.factor)
-
+d.care.soc.2 <- d.care %>% 
+        mutate(Bd43_G = case_when(Bd43_sum >= 6 & Bd43_sum < 13 ~ 1, 
+                                  Bd43_sum >= 13 & Bd43_sum <= 18 ~ 2)) %>% 
+        # as.factor
+        mutate_at(vars(matches("Bd43_G")), as.factor)
+table(d.care.soc.2$Bd43_G)
 # 1. agg ------------------------------------------------------------------
 
 # shows no interaction
@@ -380,10 +385,14 @@ d.care.43 <- d.care.soc %>%
 aov_auto(data = d.care.43, var1 = "Ch4_aggressive_sum", group = "Ft9")
 aov_auto(data = d.care.43, var1 = "Ch4_soc_sum", group = "Ft9")
 aov_auto(data = d.care.43, var1 = "Ch4_attention_sum", group = "Ft9")
-aov(Ch4_aggressive_sum ~ Ft9, data = d.care.43) %>% summary()
-aov(Ch4_soc_sum ~ Ft9, data = d.care.43) %>% summary()
-aov(Ch4_attention_sum ~ Ft9, data = d.care.43) %>% summary()
-aov(Ch4_withdrawal_sum ~ Ft9, data = d.care.43) %>% summary()
+aov_auto(data = d.care.43, var1 = "Ch4_withdrawal_sum", group = "Ft9")
+
+d.care.43 <- d.care.soc.2 %>% 
+        filter(Bd43_G == 2)
+aov_auto(data = d.care.43, var1 = "Ch4_aggressive_sum", group = "Ft9")
+aov_auto(data = d.care.43, var1 = "Ch4_soc_sum", group = "Ft9")
+aov_auto(data = d.care.43, var1 = "Ch4_attention_sum", group = "Ft9")
+aov_auto(data = d.care.43, var1 = "Ch4_withdrawal_sum", group = "Ft9")
 
 
 # 2. medium ---------------------------------------------------------------
@@ -392,24 +401,21 @@ d.care.43 <- d.care.soc %>%
 # sig
 aov_auto(data = d.care.43, var1 = "Ch4_aggressive_sum", group = "Ft9")
 aov_auto(data = d.care.43, var1 = "Ch4_soc_sum", group = "Ft9")
+aov_auto(var1 = "Ch4_attention_sum", group = "Ft9", data = d.care.43)
+aov_auto(var1 = "Ch4_withdrawal_sum", group = "Ft9", data = d.care.43)
 
-# not sig
-aov_auto(var1 = "Ch4_attention_sum", group = "Ft9", 
-         data = d.care.43)
-aov_auto(var1 = "Ch4_withdrawal_sum", group = "Ft9", 
-         data = d.care.43)
+d.care.43 <- d.care.soc.2 %>% 
+        filter(Bd43_G == 1)
+# sig
+aov_auto(data = d.care.43, var1 = "Ch4_aggressive_sum", group = "Ft9")
+aov_auto(data = d.care.43, var1 = "Ch4_soc_sum", group = "Ft9")
+aov_auto(var1 = "Ch4_attention_sum", group = "Ft9", data = d.care.43)
+aov_auto(var1 = "Ch4_withdrawal_sum", group = "Ft9", data = d.care.43)
 
 # 3. low ------------------------------------------------------------------
 d.care.43 <- d.care.soc %>% 
         filter(Bd43_G == 1)
-aov(Ch4_aggressive_sum ~ Ft9, data = d.care.43) %>% summary()
-aov(Ch4_soc_sum ~ Ft9, data = d.care.43) %>% summary()
-aov(Ch4_attention_sum ~ Ft9, data = d.care.43) %>% summary()
-aov(Ch4_withdrawal_sum ~ Ft9, data = d.care.43) %>% summary()
-
-
-# type 1 (seqrencial)
-aov(Ch4_aggressive_sum ~ Ft9 + Bd43_G, data = d.care.soc) %>% summary()
-# type 2
-car::Anova(aov(Ch4_aggressive_sum ~ Ft9 + Bd43_G, data = d.care.soc), 
-           type = "II")
+aov_auto(data = d.care.43, var1 = "Ch4_aggressive_sum", group = "Ft9")
+aov_auto(data = d.care.43, var1 = "Ch4_soc_sum", group = "Ft9")
+aov_auto(var1 = "Ch4_attention_sum", group = "Ft9", data = d.care.43)
+aov_auto(var1 = "Ch4_withdrawal_sum", group = "Ft9", data = d.care.43)
