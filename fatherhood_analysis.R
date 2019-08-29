@@ -5,15 +5,15 @@ rm(list = ls())
 cat("\014")
 library(tidyverse)
 library(magrittr)
-source("C:/Users/user/Documents/Github_CFRC/TwinCity/AOV_auto.R")
-source("C:/Users/user/Documents/Github_CFRC/TwinCity/t_auto.R")
+source("AOV_auto.R")
+source("t_auto.R")
 
 # read data file ----------------------------------------------------------
 
-load("Twin Cities/working/Taipei_all_tmp.RData")
+load("~/Documents/Rdata/twin cities/working/Taipei_all_tmp.RData")
 
-df <- haven::read_sav("Twin Cities/working/11. Taipei_all_temp.sav", 
-               encoding = "UTF-8")
+# df <- haven::read_sav("Twin Cities/working/11. Taipei_all_temp.sav", 
+               # encoding = "UTF-8")
 # 
 # save(df, file = "Taipei_all_tmp.RData")
 
@@ -34,7 +34,12 @@ d.care <- df %>%
         # respondants are the father and the mother
         filter(Bd21 %in% c(1, 2)) %>% 
         # marital status: married
-        filter(Bd30 == 1)
+        filter(Bd30 == 1) %>% 
+        # as.factor
+        mutate_at(vars(matches("^Ft9|Bd21")), as.factor)
+# check class
+class(d.care$Ft9); str(d.care$Ft9)
+class(d.care$Bd21); str(d.care$Bd21)
 
 # 1. aggressive -----------------------------------------------------------
 
@@ -214,23 +219,22 @@ effsize::cohen.d(as.numeric(Ch4_withdrawal_sum) ~ Ft9,
 
 # 1. agg ------------------------------------------------------------------
 
-d.care.soc <- d.care %>% 
-        mutate(Bd43_G = case_when(Bd43_sum >= 6 & Bd43_sum < 10 ~ 1, 
-                                  Bd43_sum >= 10 & Bd43_sum < 14 ~ 2, 
-                                  Bd43_sum >= 14 & Bd43_sum <= 18 ~ 3)) %>% 
-        # as.factor
-        mutate_at(vars(matches("Bd43_G")), as.factor)
+d.care <- df %>% 
+        mutate_at(vars(matches("Ft9|Bd21")), as.factor)
 
 aov(Ch4_aggressive_sum ~ Ft9 * Bd21, data = d.care.soc) %>% summary()
-car::Anova(aov(Ch4_aggressive_sum ~ Ft9 + Bd21, data = d.care.soc), 
+aov(Ch4_aggressive_sum ~ Bd21 * Ft9, data = d.care.soc) %>% summary()
+car::Anova(aov(Ch4_aggressive_sum ~ Ft9 * Bd21, data = d.care.soc), 
+           type = "II")
+car::Anova(aov(Ch4_aggressive_sum ~ Bd21 * Ft9, data = d.care.soc), 
            type = "II")
 
 d <- d.care.soc %>% 
         filter(!is.na(Ch4_aggressive_sum) & 
                        !is.na(Ft9) &
-                       !is.na(Bd21)) %>% 
-        mutate_at(vars(matches("Ft9|Bd21")), as.factor)
-DescTools::PostHocTest(aov(Ch4_aggressive_sum ~ Ft9 + Bd21, data = d), 
+                       !is.na(Bd21) & 
+                       !is.na(Bd43_G))
+DescTools::PostHocTest(aov(Ch4_aggressive_sum ~ Ft9 * Bd43_G, data = d), 
                        method = "scheffe")
 
 # 2. soc ------------------------------------------------------------------
