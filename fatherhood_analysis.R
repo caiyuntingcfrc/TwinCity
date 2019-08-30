@@ -5,12 +5,12 @@ rm(list = ls())
 cat("\014")
 library(tidyverse)
 library(magrittr)
-source("AOV_auto.R")
-source("t_auto.R")
+source("C:/Users/user/Documents/Github_CFRC/TwinCity/AOV_auto.R")
+source("C:/Users/user/Documents/Github_CFRC/TwinCity/t_auto.R")
 
 # read data file ----------------------------------------------------------
 
-load("~/Documents/Rdata/twin cities/working/Taipei_all_tmp.RData")
+load("D:/R_wd/twin cities/working/Taipei_all_tmp.RData")
 
 # df <- haven::read_sav("Twin Cities/working/11. Taipei_all_temp.sav", 
                # encoding = "UTF-8")
@@ -36,7 +36,7 @@ d.care <- df %>%
         # marital status: married
         filter(Bd30 == 1) %>% 
         # as.factor
-        mutate_at(vars(matches("^Ft9|Bd21")), as.factor)
+        mutate_at(vars(matches("Bd21")), as.factor)
 # check class
 class(d.care$Ft9); str(d.care$Ft9)
 class(d.care$Bd21); str(d.care$Bd21)
@@ -329,37 +329,44 @@ PerformanceAnalytics::chart.Correlation(d.corr,
 d.care <- d.care
 # group social support
 d.care.soc <- d.care %>% 
+        filter(!(Ft9 == 2 )) %>% 
         mutate(Bd43_G = case_when(Bd43_sum >= 6 & Bd43_sum < 10 ~ 1, 
                                   Bd43_sum >= 10 & Bd43_sum < 14 ~ 2, 
-                                  Bd43_sum >= 14 & Bd43_sum <= 18 ~ 3)) %>% 
+                                  Bd43_sum >= 14 & Bd43_sum < 18 ~ 3, 
+                                  TRUE ~ NA_real_)) %>% 
         # as.factor
-        mutate_at(vars(matches("Bd43_G")), as.factor)
+        mutate_at(vars(matches("Bd43_G|Ft9")), as.factor)
+table(d.care.soc$Bd43_G)
 d.care.soc.2 <- d.care %>% 
-        mutate(Bd43_G = case_when(Bd43_sum >= 6 & Bd43_sum < 13 ~ 1, 
-                                  Bd43_sum >= 13 & Bd43_sum <= 18 ~ 2)) %>% 
+        filter(!(Ft9 == 2)) %>% 
+        mutate(Bd43_G = case_when(Bd43_sum >= 6 & Bd43_sum < 15 ~ 1, 
+                                  Bd43_sum >= 15 & Bd43_sum < 18 ~ 2, 
+                                  TRUE ~ NA_real_)) %>% 
         # as.factor
         mutate_at(vars(matches("Bd43_G")), as.factor)
 table(d.care.soc.2$Bd43_G)
 # 1. agg ------------------------------------------------------------------
 
 # shows no interaction
-aov(Ch4_aggressive_sum ~ Ft9 * Bd43_G, data = d.care.soc) %>% summary()
+aov(Ch4_aggressive_sum ~ Ft9 * Bd43_G, data = d.care.soc.2) %>% summary()
 # type 1 (seqrencial)
-aov(Ch4_aggressive_sum ~ Ft9 + Bd43_G, data = d.care.soc) %>% summary()
+aov(Ch4_aggressive_sum ~ Ft9 + Bd43_G, data = d.care.soc.2) %>% summary()
 # type 2
-car::Anova(aov(Ch4_aggressive_sum ~ Ft9 + Bd43_G, data = d.care.soc), 
+car::Anova(aov(Ch4_aggressive_sum ~ Ft9 * Bd43_G, data = d.care.soc), 
            type = "II")
-
+a <- aov(Ch4_aggressive_sum ~ Ft9 * Bd43_G, data = d.care.soc); summary(a)
+DescTools::PostHocTest(a, ordered = TRUE, method = "scheffe")
 
 # 2. soc ------------------------------------------------------------------
 
-aov(Ch4_soc_sum ~ Ft9 * Bd43_G, data = d.care.soc) %>% summary()
+aov(Ch4_soc_sum ~ Ft9 * Bd43_G, data = d.care.soc.2) %>% summary()
 # type 1 (seqrencial)
-aov(Ch4_soc_sum ~ Ft9 + Bd43_G, data = d.care.soc) %>% summary()
+aov(Ch4_soc_sum ~ Ft9 + Bd43_G, data = d.care.soc.2) %>% summary()
 # type 2
-car::Anova(aov(Ch4_soc_sum ~ Ft9 + Bd43_G, data = d.care.soc), 
+car::Anova(aov(Ch4_soc_sum ~ Ft9 * Bd43_G, data = d.care.soc), 
            type = "II")
-
+a <- aov(Ch4_soc_sum ~ Ft9 * Bd43_G, data = d.care.soc); summary(a)
+DescTools::PostHocTest(a, ordered = TRUE, method = "scheffe")
 
 # 3. attentioni -----------------------------------------------------------
 
@@ -377,7 +384,7 @@ aov(Ch4_withdrawal_sum ~ Ft9 * Bd43_G, data = d.care.soc) %>% summary()
 # type 1 (seqrencial)
 aov(Ch4_withdrawal_sum ~ Ft9 + Bd43_G, data = d.care.soc) %>% summary()
 # type 2
-car::Anova(aov(Ch4_withdrawal_sum ~ Ft9 + Bd43_G, data = d.care.soc), 
+car::Anova(aov(Ch4_withdrawal_sum ~ Ft9 * Bd43_G, data = d.care.soc), 
            type = "II")
 
 
@@ -403,7 +410,7 @@ aov_auto(data = d.care.43, var1 = "Ch4_withdrawal_sum", group = "Ft9")
 d.care.43 <- d.care.soc %>% 
         filter(Bd43_G == 2)
 # sig
-aov_auto(data = d.care.43, var1 = "Ch4_aggressive_sum", group = "Ft9")
+aov_auto(var1 = "Ch4_aggressive_sum", group = "Ft9", data = d.care.43)
 aov_auto(data = d.care.43, var1 = "Ch4_soc_sum", group = "Ft9")
 aov_auto(var1 = "Ch4_attention_sum", group = "Ft9", data = d.care.43)
 aov_auto(var1 = "Ch4_withdrawal_sum", group = "Ft9", data = d.care.43)
