@@ -1,17 +1,38 @@
 
 # prep --------------------------------------------------------------------
-
+# remove env
 rm(list = ls())
+# clear console
 cat("\014")
-library(tidyverse)
-library(magrittr)
+# list of packages
+list.packages <- c("tidyverse", "magrittr", "ggstatsplot")
+# check if the packages are installed
+new.packages <- list.packages[!(list.packages %in% installed.packages()[ , "Package"])]
+# install new packages
+if(length(new.packages)) install.packages(new.packages)
+# load packages
+lapply(list.packages, require, character.only = TRUE)
+# remove lists
+rm(list.packages, new.packages)
+# options
+options(scipen = 999)
 source("C:/Users/user/Documents/Github_CFRC/TwinCity/AOV_auto.R")
 source("C:/Users/user/Documents/Github_CFRC/TwinCity/t_auto.R")
+source("D:/R_wd/Twin Cities/working/p2way.R")
 
 # read data file ----------------------------------------------------------
 
 load("D:/R_wd/twin cities/working/Taipei_all_tmp.RData")
 
+# table(df$Bd43_sum)
+# summary(df$Bd43_sum)
+# df$Bd43_sum <- as.numeric(df$Bd43_sum)
+# df <- df %>% filter(Bd43_sum < 18)
+# summary(df$Bd43_sum)
+# DescTools::PercTable(df$Bd43_sum, rfrq = "011", margins = c(1, 2))
+# df <- df %>% mutate(sqBd43_sum = Bd43_sum ^ (1 / 3))
+# qplot(df$sqBd43_sum, geom = "bar")
+# qplot(df$Bd43_sum, geom = "bar")
 # df <- haven::read_sav("Twin Cities/working/11. Taipei_all_temp.sav", 
                # encoding = "UTF-8")
 # 
@@ -19,10 +40,11 @@ load("D:/R_wd/twin cities/working/Taipei_all_tmp.RData")
 
 # standardized scores -----------------------------------------------------
 
-        # mutate(Ch4_aggressive_sum_s = scale(Ch4_aggressive_sum)[ , 1],
-        #        Ch4_soc_sum_s = scale(Ch4_soc_sum)[ , 1],
-        #        Ch4_attention_sum_s = scale(Ch4_attention_sum)[ , 1],
-        #        Ch4_soc_sum_s = scale(Ch4_soc_sum)[ , 1])
+# df <- df %>% 
+#         mutate(Ch4_aggressive_sum_s = scale(Ch4_aggressive_sum)[ , 1],
+#                Ch4_soc_sum_s = scale(Ch4_soc_sum)[ , 1],
+#                Ch4_attention_sum_s = scale(Ch4_attention_sum)[ , 1],
+#                Ch4_soc_sum_s = scale(Ch4_soc_sum)[ , 1])
 
 
 # [1] (Ch4) compare between caregivers ------------------------------------
@@ -36,7 +58,9 @@ d.care <- df %>%
         # marital status: married
         filter(Bd30 == 1) %>% 
         # as.factor
-        mutate_at(vars(matches("Bd21")), as.factor)
+        mutate_at(vars(matches("Bd21|Ft9")), as.factor) %>% 
+        # as.numeric
+        mutate_at(vars(matches("Ch4_.*_sum$")), as.numeric)
 # check class
 class(d.care$Ft9); str(d.care$Ft9)
 class(d.care$Bd21); str(d.care$Bd21)
@@ -45,26 +69,61 @@ class(d.care$Bd21); str(d.care$Bd21)
 
 aov_auto(data = d.care, var1 = "Ch4_aggressive_sum", group = "Ft9")
 
-# ggbetweenstats(data = d1, 
-#                x = Ft9, 
-#                y = Ch4_aggressive_sum_s, 
-#                type = "p", 
-#                pairwise.comparisons = TRUE, 
-#                pairwise.display = TRUE,
-#                p.adjust.method = "none")
-
+ggbetweenstats(data = d.care,
+               x = Ft9,
+               y = Ch4_aggressive_sum,
+               plot.type = "box", 
+               effsize.type = "partial_eta",
+               type = "p",
+               var.equal = FALSE, 
+               pairwise.comparisons = TRUE,
+               pairwise.display = "s",
+               p.adjust.method = "none")
 
 # 2. soc ------------------------------------------------------------------
 
 aov_auto(data = d.care, var1 = "Ch4_soc_sum", group = "Ft9")
 
+ggbetweenstats(data = d.care,
+               x = Ft9,
+               y = Ch4_soc_sum,
+               plot.type = "box", 
+               effsize.type = "partial_eta",
+               type = "p",
+               var.equal = FALSE, 
+               pairwise.comparisons = TRUE,
+               pairwise.display = "s",
+               p.adjust.method = "none")
+
 # 3. attention ------------------------------------------------------------
 
 aov_auto(data = d.care, var1 = "Ch4_attention_sum", group = "Ft9")
 
+ggbetweenstats(data = d.care,
+               x = Ft9,
+               y = Ch4_attention_sum,
+               plot.type = "box", 
+               effsize.type = "partial_eta",
+               type = "p",
+               var.equal = FALSE, 
+               pairwise.comparisons = TRUE,
+               pairwise.display = "s",
+               p.adjust.method = "none")
+
 # 4. withdrawal -----------------------------------------------------------
 
 aov_auto(data = d.care, var1 = "Ch4_withdrawal_sum", group = "Ft9")
+
+ggbetweenstats(data = d.care,
+               x = Ft9,
+               y = Ch4_withdrawal_sum,
+               plot.type = "box", 
+               effsize.type = "partial_eta",
+               type = "p",
+               var.equal = FALSE, 
+               pairwise.comparisons = TRUE,
+               pairwise.display = "s",
+               p.adjust.method = "none")
 
 # 5. Ft8 ------------------------------------------------------------------
 
@@ -219,36 +278,42 @@ effsize::cohen.d(as.numeric(Ch4_withdrawal_sum) ~ Ft9,
 
 # 1. agg ------------------------------------------------------------------
 
-d.care <- df %>% 
-        mutate_at(vars(matches("Ft9|Bd21")), as.factor)
+d.care <- d.care %>% 
+        filter(Ft9 %in% c(1, 3))
 
-aov(Ch4_aggressive_sum ~ Ft9 * Bd21, data = d.care.soc) %>% summary()
-aov(Ch4_aggressive_sum ~ Bd21 * Ft9, data = d.care.soc) %>% summary()
-car::Anova(aov(Ch4_aggressive_sum ~ Ft9 * Bd21, data = d.care.soc), 
+aov(Ch4_aggressive_sum ~ Ft9 * Bd21, data = d.care) %>% summary()
+aov(Ch4_aggressive_sum ~ Bd21 * Ft9, data = d.care) %>% summary()
+car::Anova(aov(Ch4_aggressive_sum ~ Ft9 * Bd21, data = d.care), 
            type = "II")
-car::Anova(aov(Ch4_aggressive_sum ~ Bd21 * Ft9, data = d.care.soc), 
+car::Anova(aov(Ch4_aggressive_sum ~ Bd21 * Ft9, data = d.care), 
            type = "II")
+CGPfunctions::Plot2WayANOVA(dataframe = d.care, 
+                            formula = Ch4_aggressive_sum ~ Ft9 * Bd21)
+p2way(dataframe = d.care, 
+      formula = Ch4_aggressive_sum ~ Ft9 * Bd21)
 
-d <- d.care.soc %>% 
+d <- d.care %>% 
         filter(!is.na(Ch4_aggressive_sum) & 
                        !is.na(Ft9) &
-                       !is.na(Bd21) & 
-                       !is.na(Bd43_G))
-DescTools::PostHocTest(aov(Ch4_aggressive_sum ~ Ft9 * Bd43_G, data = d), 
-                       method = "scheffe")
+                       !is.na(Bd21))
+DescTools::PostHocTest(aov(Ch4_aggressive_sum ~ Ft9 * Bd21, data = d), 
+                       method = "scheffe", ordered = TRUE)
+
 
 # 2. soc ------------------------------------------------------------------
 
-aov(Ch4_soc_sum ~ Ft9 * Bd21, data = d.care.soc) %>% summary()
-car::Anova(aov(Ch4_soc_sum ~ Ft9 + Bd21, data = d.care.soc), 
+aov(Ch4_soc_sum ~ Ft9 * Bd21, data = d.care) %>% summary()
+car::Anova(aov(Ch4_soc_sum ~ Ft9 * Bd21, data = d.care), 
            type = "II")
 
-d <- d.care.soc %>% 
+CGPfunctions::Plot2WayANOVA(dataframe = d.care, 
+                            formula = Ch4_soc_sum ~ Ft9 * Bd21)
+
+d <- d.care %>% 
         filter(!is.na(Ch4_soc_sum) & 
                        !is.na(Ft9) &
-                       !is.na(Bd21)) %>% 
-        mutate_at(vars(matches("Ft9|Bd21")), as.factor)
-DescTools::PostHocTest(aov(Ch4_soc_sum ~ Ft9 + Bd21, data = d), 
+                       !is.na(Bd21))
+DescTools::PostHocTest(aov(Ch4_soc_sum ~ Ft9 * Bd21, data = d), 
                        method = "scheffe")
 
 # 3. attention ------------------------------------------------------------
@@ -337,14 +402,25 @@ d.care.soc <- d.care %>%
         # as.factor
         mutate_at(vars(matches("Bd43_G|Ft9")), as.factor)
 table(d.care.soc$Bd43_G)
+# group social support 2
 d.care.soc.2 <- d.care %>% 
         filter(!(Ft9 == 2)) %>% 
-        mutate(Bd43_G = case_when(Bd43_sum >= 6 & Bd43_sum < 15 ~ 1, 
-                                  Bd43_sum >= 15 & Bd43_sum < 18 ~ 2, 
+        mutate(Bd43_G = case_when(Bd43_sum >= 6 & Bd43_sum <= 12 ~ 1, 
+                                  Bd43_sum > 12 & Bd43_sum < 18 ~ 2, 
                                   TRUE ~ NA_real_)) %>% 
         # as.factor
         mutate_at(vars(matches("Bd43_G")), as.factor)
 table(d.care.soc.2$Bd43_G)
+
+# test plot2way -----------------------------------------------------------
+
+d.care.soc.2$Ch4_aggressive_sum <- as.numeric(d.care.soc.2$Ch4_aggressive_sum)
+
+CGPfunctions::Plot2WayANOVA(dataframe = d.care.soc.2,
+              formula = Ch4_aggressive_sum ~ Ft9 * Bd43_G)
+
+ggstatsplot::ggbetweenstats(data = d.care.soc.2)
+
 # 1. agg ------------------------------------------------------------------
 
 # shows no interaction
