@@ -91,7 +91,7 @@ for(i in 2:nrow(tbl_bmi)) {
                 # below average
                 c1 <- d$bmi[j] < tbl_bmi$m_low[i - 1]
                 # normal
-                c2 <- d$bmi[j] > tbl_bmi$m_low[i - 1] & d$bmi[j] < tbl_bmi$m_upp[i - 1]
+                c2 <- d$bmi[j] >= tbl_bmi$m_low[i - 1] & d$bmi[j] < tbl_bmi$m_upp[i - 1]
                 # overweight
                 c3 <- d$bmi[j] >= tbl_bmi$m_upp[i - 1] & d$bmi[j] < tbl_bmi$m_ovr[i - 1]
                 # more than overweight
@@ -108,7 +108,7 @@ for(i in 2:nrow(tbl_bmi)) {
                 s <- d$Gender[j] == 0
                 f <- d$realage[j] < tbl_bmi$age[i] & d$realage[j] >= tbl_bmi$age[i - 1]
                 c1 <- d$bmi[j] < tbl_bmi$f_low[i - 1]
-                c2 <- d$bmi[j] > tbl_bmi$f_low[i - 1] & d$bmi[j] < tbl_bmi$f_upp[i - 1]
+                c2 <- d$bmi[j] >= tbl_bmi$f_low[i - 1] & d$bmi[j] < tbl_bmi$f_upp[i - 1]
                 c3 <- d$bmi[j] >= tbl_bmi$f_upp[i - 1] & d$bmi[j] < tbl_bmi$f_ovr[i - 1]
                 c4 <- d$bmi[j] >= tbl_bmi$f_ovr[i - 1]
                 if(b & s & f & c1) { d$bmicat_tp[j] <- 1 } 

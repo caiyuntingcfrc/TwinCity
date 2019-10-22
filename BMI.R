@@ -79,7 +79,7 @@ for(i in 2:nrow(tbl_bmi)) {
                 # below average
                 c1 <- df$bmi[j] < tbl_bmi$m_low[i - 1]
                 # normal
-                c2 <- df$bmi[j] > tbl_bmi$m_low[i - 1] & df$bmi[j] < tbl_bmi$m_upp[i - 1]
+                c2 <- df$bmi[j] >= tbl_bmi$m_low[i - 1] & df$bmi[j] < tbl_bmi$m_upp[i - 1]
                 # overweight
                 c3 <- df$bmi[j] >= tbl_bmi$m_upp[i - 1] & df$bmi[j] < tbl_bmi$m_ovr[i - 1]
                 # more than overweight
@@ -95,7 +95,7 @@ for(i in 2:nrow(tbl_bmi)) {
                 s <- df$Bd23[j] == 1
                 f <- df$realage[j] < tbl_bmi$age[i] & df$realage[j] >= tbl_bmi$age[i - 1]
                 c1 <- df$bmi[j] < tbl_bmi$f_low[i - 1]
-                c2 <- df$bmi[j] > tbl_bmi$f_low[i - 1] & df$bmi[j] < tbl_bmi$f_upp[i - 1]
+                c2 <- df$bmi[j] >= tbl_bmi$f_low[i - 1] & df$bmi[j] < tbl_bmi$f_upp[i - 1]
                 c3 <- df$bmi[j] >= tbl_bmi$f_upp[i - 1] & df$bmi[j] < tbl_bmi$f_ovr[i - 1]
                 c4 <- df$bmi[j] >= tbl_bmi$f_ovr[i - 1]
                 if(b & s & f & c1) { df$bmicat[j] <- 1 } 
