@@ -1,4 +1,5 @@
-
+devtools::source_url("https://raw.githubusercontent.com/caiyuntingcfrc/misc/function_poverty/func_ins.pack.R")
+ins.pack("DescTools", "userfriendlyscience")
 # function ----------------------------------------------------------------
 
 aov_auto <- function(data, var1, group, sig = 0.05) {
