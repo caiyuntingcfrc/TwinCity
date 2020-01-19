@@ -1,17 +1,4 @@
 
-# prep --------------------------------------------------------------------
-
-# list of packages
-list.packages <- c("tidyverse", "DescTools", "userfriendlyscience")
-# check if the packages are installed
-new.packages <- list.packages[!(list.packages %in% installed.packages()[ , "Package"])]
-# install new packages
-if(length(new.packages)) install.packages(new.packages)
-# remove lists
-rm(list.packages, new.packages)
-# options
-options(scipen = 999)
-
 # function ----------------------------------------------------------------
 
 aov_auto <- function(data, var1, group, sig = 0.05) {
