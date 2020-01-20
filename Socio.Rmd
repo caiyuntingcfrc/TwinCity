@@ -13,19 +13,24 @@ rm(list = ls())
 # clear console
 cat("\014")
 # source ins.pack
-source("~/Documents/Github/misc/func_ins.pack.R")
-source("~/Documents/Github/TwinCity/AOV_auto.R")
-# devtools::source_url("https://raw.githubusercontent.com/caiyuntingcfrc/misc/function_poverty/func_ins.pack.R")
-# devtools::source_url("https://raw.githubusercontent.com/caiyuntingcfrc/TwinCity/master/AOV_auto.R")
+# source("~/Documents/Github/misc/func_ins.pack.R")
+# source("~/Documents/Github/TwinCity/AOV_auto.R")
+devtools::source_url("https://raw.githubusercontent.com/caiyuntingcfrc/misc/function_poverty/func_ins.pack.R")
+devtools::source_url("https://raw.githubusercontent.com/caiyuntingcfrc/TwinCity/master/AOV_auto.R")
 # load packages
-ins.pack("haven", "tidyverse", "magrittr", "sjPlot", "sjmisc", "feather", "DescTools")
+ins.pack("haven", "tidyverse", "magrittr", 
+         "sjPlot", "sjmisc", 
+         "feather", 
+         "DescTools", "descr", 
+         "car", "sandwich", "RcmdrMisc")
 # option
 options(scipen = 999)
 # read file
-df <- read_feather("~/R_wd/Twin Cities Data/tp_all.feather")
+df <- read_feather("D:/R_wd/Twin Cities Data/tp_all.feather")
 
 ```
-```{r Ft9, echo=FALSE, dpi=300, fig.width=5, fig.height=4, cache=TRUE}
+
+```{r readfile, echo=FALSE, dpi=300, fig.width=5, fig.height=4, cache=TRUE}
 
 # caregiver: parents, father and mother
 # respondant: father and mother
@@ -35,7 +40,7 @@ d <- df %>%
 
 ```
 
-```{r table_caregicer, echo=FALSE, dpi=300, fig.width=5, fig.height=4}
+```{r table_caregicer, echo=FALSE, eval=FALSE, dpi=300, fig.width=5, fig.height=4}
 
 # table freq
 t <- summarytools::freq(d$Ft9)
@@ -43,16 +48,10 @@ knitr::kable(t, digits = 2, caption = "freq: caregiver")
 
 ```
 
-
-```{r plot_socio, echo=FALSE, dpi=300, fig.width=8, fig.height=5}
-
-# plot freq socio 
-plot_frq(d$socio) + theme_sjplot2()
-
-```
-
-
-```{r d43, echo=TRUE, dpi=300, fig.width=8, fig.height=5}
+```{r plot_d43, echo=FALSE, dpi=300, fig.width=8, fig.height=5}
+# plot afreq Bd43_sum (df)
+plot_frq(df$Bd43_sum, 
+         title = "Bd43_: raw") + theme_sjplot2()
 # plot likert Bd43 (df) 
 d43_0 <- df %>% 
         select(matches("^Bd43_")) %>% 
@@ -60,26 +59,80 @@ d43_0 <- df %>%
 plot_likert(d43_0, 
             show.prc.sign = TRUE,
             digits = 2, 
-            catcount = 3) + theme_sjplot2()
+            catcount = 3, 
+            title = "Bd43_: raw") + theme_sjplot2()
 
+
+# plot freq Bd43_sum
+plot_frq(d$Bd43_sum, 
+         title = "Bd43_: filtered") + theme_sjplot2()
 # plot likert Bd43 (d)
-d43 <- d %>% 
+d43_likert <- d %>% 
         select(matches("^Bd43_")) %>% 
         select(-Bd43_sum)
-plot_likert(d43, 
+plot_likert(d43_likert, 
             show.prc.sign = TRUE, 
             digits = 2, 
-            catcount = 3) + theme_sjplot2()
+            catcount = 3, 
+            title = "Bd43_: filtered") + theme_sjplot2()
+
+# plot freq Bd43_1 == 1
+d43_1 <- d %>% 
+        filter(Bd43_1 == 1)
+# plot freq
+plot_frq(d43_1$Bd43_sum, 
+         title = "Bd43_: filtered: Bd43_1 == 1") + theme_sjplot2()
+# plot likert
+d43_1_likert <- d43_1 %>% 
+        select(matches("^Bd43_")) %>% 
+        select(-Bd43_sum)
+plot_likert(d43_1_likert, 
+            show.prc.sign = TRUE, 
+            digits = 2, 
+            catcount = 3, 
+            title = "Bd43_: filtered: Bd43_1 == 1") + theme_sjplot2()
+
+# plot freq Bd43_2 == 1
+d43_2 <- d %>% 
+        filter(Bd43_2 == 1)
+# plot freq
+plot_frq(d43_2$Bd43_sum, 
+         title = "Bd43_: filtered: Bd43_2 == 1") + theme_sjplot2()
+# plot likert
+d43_2_likert <- d43_2 %>% 
+        select(matches("^Bd43_")) %>% 
+        select(-Bd43_sum)
+plot_likert(d43_2_likert, 
+            show.prc.sign = TRUE, 
+            digits = 2, 
+            catcount = 3, 
+            title = "Bd43_: filtered: Bd43_2 == 1") + theme_sjplot2()
+
+# plot freq Bd43_1 == 1 & Bd43_2 == 1
+d43_3 <- d %>% 
+        filter(Bd43_1 == 1 & Bd43_2 == 1)
+# plot freq
+plot_frq(d43_3$Bd43_sum, 
+         title = "Bd43_: filtered: Bd43_1 ==1 & Bd43_2 == 1") + theme_sjplot2()
+# plot likert
+d43_3_likert <- d43_3 %>% 
+        select(matches("^Bd43_")) %>% 
+        select(-Bd43_sum)
+plot_likert(d43_3_likert, 
+            show.prc.sign = TRUE, 
+            digits = 2, 
+            catcount = 3, 
+            title = "Bd43_: filtered: Bd43_1 ==1 & Bd43_2 == 1") + theme_sjplot2()
 
 ```
-```{r Ft9xBd43, echo=FALSE, dpi=300, fig.width=8, fig.height=5, cache=TRUE}
+```{r d_model, echo=FALSE, dpi=300, fig.width=8, fig.height=5, cache=TRUE}
 # d_model
 d_model <- d %>% 
         # mutate(socio_sd = socio / sd(socio, na.rm = TRUE)) %>%
-        mutate(socio_ = case_when(socio <= 11 ~ 1L,
-                                  socio > 11 & socio < 18 ~ 2L,
-                                  socio == 18 ~ 3L,
-                                  TRUE ~ NA_integer_)) %>%
+        mutate(socio = case_when(Bd43_sum <= 11 ~ 1L,
+                                 Bd43_sum > 11 & Bd43_sum < 18 ~ 2L,
+                                 Bd43_sum == 18 ~ 3L,
+                                 TRUE ~ NA_integer_)) %>%
         # mutate Bd43 2 cat
         # mutate(Bd43_1 = case_when(Bd43_1 %in% c(1, 2) ~ 1, 
         #                           Bd43_1 == 3 ~ 2), 
@@ -94,108 +147,85 @@ d_model <- d %>%
         #        Bd43_6 = case_when(Bd43_6 %in% c(1, 2) ~ 1, 
         #                           Bd43_6 == 3 ~ 2)) %>% 
         # mutate sum Bd43
-        mutate(socio_sum = Bd43_1 + Bd43_2 + Bd43_3 +
-                               Bd43_4 + Bd43_5 + Bd43_6) %>% 
+        # mutate(socio_sum = Bd43_1 + Bd43_2 + Bd43_3 +
+        #                        Bd43_4 + Bd43_5 + Bd43_6) %>% 
         # mutate standardize Ch4
-        mutate(Ch4_aggressive_sum_sd = Ch4_aggressive_sum / sd(Ch4_aggressive_sum, na.rm = TRUE),
-               Ch4_soc_sum_sd = Ch4_soc_sum / sd(Ch4_soc_sum, na.rm = TRUE),
-               Ch4_attention_sum_sd = Ch4_attention_sum / sd(Ch4_attention_sum, na.rm = TRUE),
-               Ch4_withdrawal_sum_sd = Ch4_withdrawal_sum / sd(Ch4_withdrawal_sum, na.rm = TRUE))
+        mutate(Ch4_aggressive_sum_sd = (Ch4_aggressive_sum - mean(Ch4_aggressive_sum, na.rm = TRUE)) / 
+                       sd(Ch4_aggressive_sum, na.rm = TRUE),
+               Ch4_soc_sum_sd = (Ch4_soc_sum - mean(Ch4_soc_sum, na.rm = TRUE)) / 
+                       sd(Ch4_soc_sum, na.rm = TRUE),
+               Ch4_attention_sum_sd = (Ch4_attention_sum - mean(Ch4_attention_sum, na.rm = TRUE)) / 
+                       sd(Ch4_attention_sum, na.rm = TRUE),
+               Ch4_withdrawal_sum_sd = (Ch4_withdrawal_sum - mean(Ch4_withdrawal_sum, na.rm = TRUE)) / 
+                       sd(Ch4_withdrawal_sum, na.rm = TRUE)) %>% 
+        to_factor(Ft9, socio)
 ```
-```{r xtab_Ft9xSocio, echo=TRUE}
+```{r xtab_Ft9xSocio, echo=FALSE, eval=FALSE}
 # xtab: Ft9xSocio
-sjt.xtab(d_model$Ft9, d_model$socio_, 
+sjt.xtab(d_model$Ft9, d_model$socio, 
          show.row.prc = TRUE, 
          show.col.prc = TRUE, 
          show.legend = TRUE, 
          digits = 2, 
+         var.labels = c("caregiver", "social support"), 
          emph.total = TRUE, 
          encoding = "UTF-8", 
          use.viewer = FALSE,
-         file = "~/R_wd/Twin Cities Data/F9.doc")
+         file = "D:/R_wd/Twin Cities Data/F9.doc")
 ```
+
+
 ```{r m1_Ft9xSocio, echo=TRUE}
 # model1: socio
-# socio_ == 6
 d_m1 <- d_model %>% 
-        to_factor(socio_, Ft9)
+        to_factor(socio, Ft9)
 # m1
-m1 <- aov(Ch4_aggressive_sum ~ socio_ * Ft9, data = d_m1)
-summary(m1)
-m1 <- aov(Ch4_soc_sum ~ socio_ * Ft9, data = d_m1)
-summary(m1)
-m1 <- aov(Ch4_attention_sum ~ socio_ * Ft9, data = d_m1)
-summary(m1)
-m1 <- aov(Ch4_withdrawal_sum ~ socio_ * Ft9, data = d_m1)
-summary(m1)
+# agg
+m1 <- aov(Ch4_aggressive_sum_sd ~ Ft9 * socio, data = d_m1)
+Anova(m1, type = "II")
+# soc
+m1 <- aov(Ch4_soc_sum_sd ~ Ft9 * socio, data = d_m1)
+Anova(m1, type = "II")
+# att
+m1 <- aov(Ch4_attention_sum_sd ~ Ft9 * socio, data = d_m1)
+Anova(m1, type = "II")
+# withdraw
+m1 <- aov(Ch4_withdrawal_sum_sd ~ Ft9 * socio, data = d_m1)
+Anova(m1, type = "II")
 
 # m1 without int
-m1 <- aov(Ch4_aggressive_sum ~ socio_ + Ft9, data = d_m1)
-summary(m1)
+# agg
+m1 <- aov(Ch4_aggressive_sum_sd ~ Ft9 + socio, data = d_m1)
+Anova(m1, type = "II")
+# post-hoc
 ScheffeTest(m1)
-m1 <- aov(Ch4_soc_sum ~ socio_ + Ft9, data = d_m1)
-summary(m1)
+# plot means
+with(d_m1, plotMeans(Ch4_aggressive_sum_sd, Ft9, socio, error.bars = "se"))
+
+# soc
+m1 <- aov(Ch4_soc_sum_sd ~ Ft9 + socio, data = d_m1)
+Anova(m1, type = "II")
+# post-hoc
 ScheffeTest(m1)
-m1 <- aov(Ch4_attention_sum ~ socio_ + Ft9, data = d_m1)
-summary(m1)
+# plot means
+with(d_m1, plotMeans(Ch4_soc_sum_sd, Ft9, socio, error.bars = "se"))
+
+# att
+m1 <- aov(Ch4_attention_sum_sd ~ Ft9 + socio, data = d_m1)
+Anova(m1, type = "II")
+# post-hoc
 ScheffeTest(m1)
-m1 <- aov(Ch4_withdrawal_sum ~ socio_ + Ft9, data = d_m1)
-summary(m1)
+# plot means
+with(d_m1, plotMeans(Ch4_attention_sum_sd, Ft9, socio, error.bars = "se"))
+
+# withdraw
+m1 <- aov(Ch4_withdrawal_sum_sd ~ Ft9 + socio, data = d_m1)
+Anova(m1, type = "II")
+# post-hoc
 ScheffeTest(m1)
-```
-```{r plot_m2, echo=TRUE, dpi=300, fig.width=8, fig.height=5}
-# model2: with low socio
-d_m2 <- d_model %>% 
-        filter(socio_ == 1) %>% 
-        to_factor(Ft9)
+# plot means
+with(d_m1, plotMeans(Ch4_withdrawal_sum_sd, Ft9, socio, error.bars = "se"))
 
-# plot likert
-d_m2_likert <- d_m2 %>% 
-        select(matches("^Bd43_")) %>% 
-        select(-Bd43_sum)
-plot_likert(d_m2_likert, catcount = 3)
-```
-```{r m2_low, echo=TRUE}
-# m2
-m2 <- aov(Ch4_aggressive_sum ~ Ft9, data = d_m2)
-summary(m2)
-m2 <- aov(Ch4_soc_sum ~ Ft9, data = d_m2)
-summary(m2)
-m2 <- aov(Ch4_attention_sum ~ Ft9, data = d_m2)
-summary(m2)
-ScheffeTest(m2)
-m2 <- aov(Ch4_withdrawal_sum ~ Ft9, data = d_m2)
-summary(m2)
-```
-```{r m3_low}
-
-d_m3 <- d_model %>% 
-        filter(socio_ == 1) %>% 
-        filter(Bd43_1 <= 1 & Bd43_2 <= 1) %>% 
-        to_factor(Ft9)
-
-d_m3_likert <- d_model %>% 
-        select(matches("^Bd43_")) %>% 
-        select(-Bd43_sum)
-plot_likert(d_m3_likert, 
-            show.prc.sign = FALSE, 
-            catcount = 3) + theme_sjplot2()
-
-m3 <- aov(Ch4_aggressive_sum ~ Ft9, data = d_m3)
-m3 <- aov(Ch4_soc_sum ~ Ft9, data = d_m3)
-summary(m3)
-
-```
-```{r m4_Bd43_2, echo=FALSE}
-
-d_m4 <- d_model %>% 
-        filter(Bd43_2 <= 2 ) %>% 
-        to_factor(Ft9, Bd43_2)
-m4 <- aov(Ch4_aggressive_sum ~ Ft9, data = d_m4)
-summary(m4)
-m4 <- aov(Ch4_aggressive_sum ~ Ft9 + Bd43_2, data = d_m4)
-summary(m4)
-ScheffeTest(m4)
 ```
 
 
