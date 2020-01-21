@@ -22,11 +22,12 @@ ins.pack("haven", "tidyverse", "magrittr",
          "sjPlot", "sjmisc", 
          "feather", 
          "DescTools", "descr", 
-         "car", "sandwich", "RcmdrMisc")
+         "car", "sandwich", "RcmdrMisc", 
+         "ggpubr")
 # option
 options(scipen = 999)
 # read file
-df <- read_feather("D:/R_wd/Twin Cities Data/tp_all.feather")
+df <- read_feather("i:/R_wd/Twin Cities Data/tp_all.feather")
 
 ```
 
@@ -124,7 +125,31 @@ plot_likert(d43_3_likert,
             catcount = 3, 
             title = "Bd43_: filtered: Bd43_1 ==1 & Bd43_2 == 1") + theme_sjplot2()
 
+summary(lm(Ch4_aggressive_sum ~ Ft9 + Bd43_sum, data = d43_3))
+
+
 ```
+
+```{r corr, echo=FALSE, eval=FALSE}
+
+d.corr <- df %>% 
+        select(matches("^Bd43_"))
+# bd43_1
+Cor(d.corr$Bd43_1, d.corr$Bd43_sum, method = "spearman", use = "p")
+ggscatter(d.corr, "Bd43_1", "Bd43_sum", 
+          add = "reg.line", 
+          conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman")
+# bd43_2
+Cor(d.corr$Bd43_2, d.corr$Bd43_sum, method = "spearman", use = "p")
+ggscatter(d.corr, "Bd43_1", "Bd43_sum", 
+          add = "reg.line", 
+          conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman")
+
+```
+
+
 ```{r d_model, echo=FALSE, dpi=300, fig.width=8, fig.height=5, cache=TRUE}
 # d_model
 d_model <- d %>% 
