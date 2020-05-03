@@ -13,8 +13,8 @@ rm(list = ls())
 # clear console
 cat("\014")
 # source ins.pack
-# source("~/Documents/Github/misc/func_ins.pack.R")
-# source("~/Documents/Github/TwinCity/AOV_auto.R")
+# source("~/Github/misc/func_ins.pack.R")
+# source("~/Github/TwinCity/AOV_auto.R")
 devtools::source_url("https://raw.githubusercontent.com/caiyuntingcfrc/misc/function_poverty/func_ins.pack.R")
 devtools::source_url("https://raw.githubusercontent.com/caiyuntingcfrc/TwinCity/master/AOV_auto.R")
 # load packages
