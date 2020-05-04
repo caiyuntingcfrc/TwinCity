@@ -63,7 +63,8 @@ df <- read_feather("Twin Cities Data/tp_all.feather")
 # gridExtra::grid.arrange(p1, p2, p3, p4, nrow = 2)
 # 
 
-# desc-filter -------------------------------------------------------------
+
+# desc_filter -------------------------------------------------------------
 
 # filter Ft9, Bd21
 # n: 5666
@@ -243,4 +244,38 @@ userfriendlyscience::freq(d$Bd35, nsmall = 2,
 
 # desc_grade (grade) ------------------------------------------------------
 
+val_lab(d$grade) <- num_lab("
+                            1 一年級
+                            3 三年級
+                            5 五年級
+                            ")
+# freq
+userfriendlyscience::freq(d$grade, nsmall = 2, 
+                          plot = TRUE, 
+                          plotTheme = theme_pubclean())
 
+
+# desc_Bd43 (ISEL) --------------------------------------------------------
+# Interpersonal Support Evaluation scale
+# freq
+userfriendlyscience::freq(d$Bd43_sum, nsmall = 2, 
+                          plot = TRUE, 
+                          plotTheme = theme_pubclean())
+
+
+# recode_Bd43 (3 groups) --------------------------------------------------
+
+# d
+d <- d %>% 
+        # mutate(socio_sd = socio / sd(socio, na.rm = TRUE)) %>%
+        mutate(socio = case_when(Bd43_sum <= 11 ~ 1L,
+                                 Bd43_sum > 11 & Bd43_sum < 18 ~ 2L,
+                                 Bd43_sum == 18 ~ 3L,
+                                 TRUE ~ NA_integer_))
+
+# desc_socio --------------------------------------------------------------
+
+# freq
+userfriendlyscience::freq(d$socio, nsmall = 2, 
+                          plot = TRUE, 
+                          plotTheme = theme_pubclean())
