@@ -10,7 +10,7 @@ options(scipen = 999)
 # ins.pak
 ins.pack("tidyverse", "feather", "ggpubr", "ggExtra", 
          "sjstats", "pastecs", "stargazer", 
-         "expss")
+         "expss", "PerformanceAnalytics")
 
 # read data file ----------------------------------------------------------
 
@@ -115,9 +115,9 @@ gridExtra::grid.arrange(p1, p2, p3, p4, nrow = 2)
 
 # label
 val_lab(d$Ft9) <- num_lab("
-                        1 ¤÷¥À
-                        2 ¤÷¿Ë
-                        3 ¥À¿Ë
+                        1 çˆ¶æ¯
+                        2 çˆ¶è¦ª
+                        3 æ¯è¦ª
                         ")
 # freq
 userfriendlyscience::freq(d$Ft9, nsmall = 2, 
@@ -128,8 +128,8 @@ userfriendlyscience::freq(d$Ft9, nsmall = 2,
 
 # label
 val_lab(d$Bd21) <- num_lab("
-                         1 ¥À¿Ë
-                         2 ¤÷¿Ë
+                         1 æ¯è¦ª
+                         2 çˆ¶è¦ª
                          ")
 # freq
 userfriendlyscience::freq(d$Bd21, nsmall = 2, 
@@ -140,8 +140,8 @@ userfriendlyscience::freq(d$Bd21, nsmall = 2,
 
 # label
 val_lab(d$Bd23) <- num_lab("
-                         1 ¤k
-                         2 ¨k
+                         1 å¥³
+                         2 ç”·
                          ")
 # freq
 userfriendlyscience::freq(d$Bd23, nsmall = 2, 
@@ -152,12 +152,12 @@ userfriendlyscience::freq(d$Bd23, nsmall = 2,
 
 # label
 val_lab(d$Bd26) <- num_lab("
-                         1 °ê¤¤¤Î¥H¤U
-                         2 °ª¤¤¡]Â¾¡^
-                         3 ±M¬ì
-                         4 ¤j¾Ç
-                         5 ºÓ¤h
-                         6 ³Õ¤h
+                         1 åœ‹ä¸­åŠä»¥ä¸‹
+                         2 é«˜ä¸­ï¼ˆè·ï¼‰
+                         3 å°ˆç§‘
+                         4 å¤§å­¸
+                         5 ç¢©å£«
+                         6 åšå£«
                          ")
 # freq
 userfriendlyscience::freq(d$Bd26, nsmall = 2, 
@@ -169,12 +169,12 @@ userfriendlyscience::freq(d$Bd26, nsmall = 2,
 
 # label
 val_lab(d$Bd31) <- num_lab("
-                         1 °ê¤¤¤Î¥H¤U
-                         2 °ª¤¤¡]Â¾¡^
-                         3 ±M¬ì
-                         4 ¤j¾Ç
-                         5 ºÓ¤h
-                         6 ³Õ¤h
+                         1 åœ‹ä¸­åŠä»¥ä¸‹
+                         2 é«˜ä¸­ï¼ˆè·ï¼‰
+                         3 å°ˆç§‘
+                         4 å¤§å­¸
+                         5 ç¢©å£«
+                         6 åšå£«
                          ")
 # freq
 userfriendlyscience::freq(d$Bd31, nsmall = 2, 
@@ -185,15 +185,15 @@ userfriendlyscience::freq(d$Bd31, nsmall = 2,
 
 # label
 val_lab(d$Bd27) <- num_lab("
-                         1 ¦bÂ¾
-                         2 ®a®x¥D°ü / ¤Ò
-                         3 «Ý·~
-                         4 ³Qµô­û / ³Q¸ê»º
-                         5 ¦b¾Ç¤¤
-                         6 °h¥ð
-                         7 ¼È®É©Î¥Ã¤[©Ê´Ý¯e
-                         8 ¨ä¥L¡A½Ð»¡©ú
-                         9 ¦P®É¦bÂ¾¤Î®a®x¥D°ü / ¤Ò
+                         1 åœ¨è·
+                         2 å®¶åº­ä¸»å©¦ / å¤«
+                         3 å¾…æ¥­
+                         4 è¢«è£å“¡ / è¢«è³‡é£
+                         5 åœ¨å­¸ä¸­
+                         6 é€€ä¼‘
+                         7 æš«æ™‚æˆ–æ°¸ä¹…æ€§æ®˜ç–¾
+                         8 å…¶ä»–ï¼Œè«‹èªªæ˜Ž
+                         9 åŒæ™‚åœ¨è·åŠå®¶åº­ä¸»å©¦ / å¤«
                          ")
 # freq
 userfriendlyscience::freq(d$Bd27, nsmall = 2, 
@@ -205,15 +205,15 @@ userfriendlyscience::freq(d$Bd27, nsmall = 2,
 
 # label
 val_lab(d$Bd32) <- num_lab("
-                         1 ¦bÂ¾
-                         2 ®a®x¥D°ü / ¤Ò
-                         3 «Ý·~
-                         4 ³Qµô­û / ³Q¸ê»º
-                         5 ¦b¾Ç¤¤
-                         6 °h¥ð
-                         7 ¼È®É©Î¥Ã¤[©Ê´Ý¯e
-                         8 ¨ä¥L¡A½Ð»¡©ú
-                         9 ¦P®É¦bÂ¾¤Î®a®x¥D°ü / ¤Ò
+                         1 åœ¨è·
+                         2 å®¶åº­ä¸»å©¦ / å¤«
+                         3 å¾…æ¥­
+                         4 è¢«è£å“¡ / è¢«è³‡é£
+                         5 åœ¨å­¸ä¸­
+                         6 é€€ä¼‘
+                         7 æš«æ™‚æˆ–æ°¸ä¹…æ€§æ®˜ç–¾
+                         8 å…¶ä»–ï¼Œè«‹èªªæ˜Ž
+                         9 åŒæ™‚åœ¨è·åŠå®¶åº­ä¸»å©¦ / å¤«
                          ")
 # freq
 userfriendlyscience::freq(d$Bd32, nsmall = 2, 
@@ -225,17 +225,17 @@ userfriendlyscience::freq(d$Bd32, nsmall = 2,
 
 # label
 val_lab(d$Bd35) <- num_lab("
-                         1 ¤Ö©ó30¸U¤¸
-                         2 30~49¸U¤¸
-                         3 50~69¸U¤¸
-                         4 70~89¸U¤¸
-                         5 90~109¸U¤¸
-                         6 110~129¸U¤¸
-                         7 130~149¸U¤¸
-                         8 150~169¸U¤¸
-                         9 170~199¸U¤¸
-                         10 200~249¸U¤¸
-                         11 250¸U¤¸¥H¤W
+                         1 å°‘æ–¼30è¬å…ƒ
+                         2 30~49è¬å…ƒ
+                         3 50~69è¬å…ƒ
+                         4 70~89è¬å…ƒ
+                         5 90~109è¬å…ƒ
+                         6 110~129è¬å…ƒ
+                         7 130~149è¬å…ƒ
+                         8 150~169è¬å…ƒ
+                         9 170~199è¬å…ƒ
+                         10 200~249è¬å…ƒ
+                         11 250è¬å…ƒä»¥ä¸Š
                          ")
 # freq
 userfriendlyscience::freq(d$Bd35, nsmall = 2, 
@@ -245,9 +245,9 @@ userfriendlyscience::freq(d$Bd35, nsmall = 2,
 # desc_grade (grade) ------------------------------------------------------
 
 val_lab(d$grade) <- num_lab("
-                            1 ¤@¦~¯Å
-                            3 ¤T¦~¯Å
-                            5 ¤­¦~¯Å
+                            1 ä¸€å¹´ç´š
+                            3 ä¸‰å¹´ç´š
+                            5 äº”å¹´ç´š
                             ")
 # freq
 userfriendlyscience::freq(d$grade, nsmall = 2, 
@@ -263,13 +263,13 @@ userfriendlyscience::freq(d$Bd43_sum, nsmall = 2,
                           plotTheme = theme_pubclean())
 
 
-# recode_Bd43 (3 groups) --------------------------------------------------
+# recode_socio (3 groups) --------------------------------------------------
 
-# d
+# 3 groups (18, 12~18, <12)
 d <- d %>% 
         # mutate(socio_sd = socio / sd(socio, na.rm = TRUE)) %>%
-        mutate(socio = case_when(Bd43_sum <= 11 ~ 1L,
-                                 Bd43_sum > 11 & Bd43_sum < 18 ~ 2L,
+        mutate(socio = case_when(Bd43_sum < 12 ~ 1L,
+                                 Bd43_sum >= 12 & Bd43_sum < 18 ~ 2L,
                                  Bd43_sum == 18 ~ 3L,
                                  TRUE ~ NA_integer_))
 
@@ -279,3 +279,16 @@ d <- d %>%
 userfriendlyscience::freq(d$socio, nsmall = 2, 
                           plot = TRUE, 
                           plotTheme = theme_pubclean())
+
+
+# regression-1 ------------------------------------------------------------
+
+var_lab(d$Ft9) <- "ä¸»è¦ç…§é¡§è€…"
+str(d$Ft9)
+
+d1 <- d %>% 
+        select(Bd26, Bd31, 
+               Bd32, Bd35, Bd43_sum) %>% 
+        mutate_if(is.factor, as.numeric)
+chart.Correlation(d1)
+
