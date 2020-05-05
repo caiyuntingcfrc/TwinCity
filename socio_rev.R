@@ -2,9 +2,9 @@
 # prep and options --------------------------------------------------------
 # rm
 rm(list = ls()); cat("\14")
-source("~/Github/misc/func_ins.pack.R")
+source("~/Github_CFRC/misc/func_ins.pack.R")
 # setwd
-setwd("i:/R_wd/")
+setwd("d:/R_wd/")
 # option
 options(scipen = 999)
 # ins.pak
@@ -114,6 +114,7 @@ gridExtra::grid.arrange(p1, p2, p3, p4, nrow = 2)
 # desc_Ft9 (caregiver) ----------------------------------------------------
 
 # label
+var_lab(d$Ft9) <- "主要照顧者"
 val_lab(d$Ft9) <- num_lab("
                         1 父母
                         2 父親
@@ -268,10 +269,10 @@ userfriendlyscience::freq(d$Bd43_sum, nsmall = 2,
 # 3 groups (18, 12~18, <12)
 d <- d %>% 
         # mutate(socio_sd = socio / sd(socio, na.rm = TRUE)) %>%
-        mutate(socio = case_when(Bd43_sum < 12 ~ 1L,
-                                 Bd43_sum >= 12 & Bd43_sum < 18 ~ 2L,
-                                 Bd43_sum == 18 ~ 3L,
-                                 TRUE ~ NA_integer_))
+        mutate(socio = case_when(Bd43_sum < 12 ~ 1,
+                                 Bd43_sum >= 12 & Bd43_sum < 18 ~ 0,
+                                 Bd43_sum == 18 ~ 0,
+                                 TRUE ~ NA_real_))
 
 # desc_socio --------------------------------------------------------------
 
@@ -283,12 +284,129 @@ userfriendlyscience::freq(d$socio, nsmall = 2,
 
 # regression-1 ------------------------------------------------------------
 
-var_lab(d$Ft9) <- "主要照顧者"
-str(d$Ft9)
+
 
 d1 <- d %>% 
         select(Bd26, Bd31, 
-               Bd32, Bd35, Bd43_sum) %>% 
+               Bd32, Bd35, Bd43_sum, 
+               Ch4_aggressive_sum, 
+               Ch4_soc_sum, 
+               Ch4_attention_sum, 
+               Ch4_withdrawal_sum) %>% 
         mutate_if(is.factor, as.numeric)
+
+# correlation matrix
 chart.Correlation(d1)
+
+# model -------------------------------------------------------------------
+# recode Ft9 --------------------------------------------------------------
+# dummy1
+d <- d %>% 
+        mutate(Ft9_dummy1 = case_when(Ft9 == 1 ~ 1, 
+                                        Ft9 == 2 ~ 0, 
+                                        Ft9 == 3 ~ 0, 
+                                        TRUE ~ NA_real_))
+userfriendlyscience::freq(d$Ft9_dummy1)
+
+# dummy2
+d <- d %>% 
+        mutate(Ft9_dummy2 = case_when(Ft9 == 1 ~ 0, 
+                                        Ft9 == 2 ~ 0, 
+                                        Ft9 == 3 ~ 1, 
+                                        TRUE ~ NA_real_))
+userfriendlyscience::freq(d$Ft9_dummy2)
+
+
+# recode Bd21 -------------------------------------------------------------
+
+d <- d %>% 
+        mutate(Bd21_model = case_when(Bd21 == 1 ~ 1, 
+                                      Bd21 == 2 ~ 0, 
+                                      TRUE ~ NA_real_))
+# labs
+var_lab(d$Bd21_model) <- "填答者"
+val_lab(d$Bd21_model) <- num_lab("
+                                 1 母親
+                                 0 父親
+                                 ")
+# freq
+userfriendlyscience::freq(d$Bd21_model)
+
+
+# recode Bd23 -------------------------------------------------------------
+
+d <- d %>% 
+        mutate(Bd23_model = case_when(Bd23 == 1 ~ 0, 
+                                      Bd23 == 2 ~ 1, 
+                                      TRUE ~ NA_real_))
+# labs
+var_lab(d$Bd23_model) <- "性別"
+val_lab(d$Bd23_model) <- num_lab("
+                                 1 男
+                                 0 女
+                                 ")
+# freq
+userfriendlyscience::freq(d$Bd23_model)
+
+
+# model -------------------------------------------------------------------
+
+model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1, data = d)
+Anova(model0)
+summary(model0)
+
+model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + Ft9_dummy2, data = d)
+Anova(model0)
+summary(model0)
+
+model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + Ft9_dummy2 + 
+                     Bd21_model, data = d)
+Anova(model0)
+summary(model0)
+
+model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + Ft9_dummy2 + 
+                     Bd21_model + 
+                     Bd23_model, data = d)
+Anova(model0)
+summary(model0)
+lm.beta(model0)
+
+
+model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + Ft9_dummy2 + Bd21_model +
+                     Bd43_sum, data = d)
+model0 <- lm(Ch4_aggressive_sum ~  
+                     Bd43_sum, data = d)
+Anova(model0)
+summary(model0)
+lm.beta(model0)$standardized.coefficients
+vcov(model0)
+influence(model0)
+car::avPlots(model0)
+
+plot(model0)
+
+model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + 
+                     Bd21_model + 
+                     Bd23_model + 
+                     Bd43_sum, data = d)
+Anova(model0)
+summary(model0)
+lm.beta(model0)
+
+model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + 
+                     Bd21_model + 
+                     Bd23_model + 
+                     socio, data = d)
+Anova(model0)
+summary(model0)
+lm.beta(model0)
+
+model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + 
+                     Bd21_model + 
+                     Bd23_model + 
+                     socio, data = d)
+Anova(model0)
+summary(model0)
+lm.beta(model0)
+
 
