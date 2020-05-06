@@ -2,15 +2,16 @@
 # prep and options --------------------------------------------------------
 # rm
 rm(list = ls()); cat("\14")
-source("~/Github_CFRC/misc/func_ins.pack.R")
+source("~/Github/misc/func_ins.pack.R")
 # setwd
-setwd("d:/R_wd/")
+setwd("i:/R_wd/")
 # option
 options(scipen = 999)
 # ins.pak
 ins.pack("tidyverse", "feather", "ggpubr", "ggExtra", 
          "sjstats", "pastecs", "stargazer", 
-         "expss", "PerformanceAnalytics")
+         "expss", "PerformanceAnalytics", "car", 
+         "lm.beta")
 
 # read data file ----------------------------------------------------------
 
@@ -269,10 +270,20 @@ userfriendlyscience::freq(d$Bd43_sum, nsmall = 2,
 # 3 groups (18, 12~18, <12)
 d <- d %>% 
         # mutate(socio_sd = socio / sd(socio, na.rm = TRUE)) %>%
-        mutate(socio = case_when(Bd43_sum < 12 ~ 1,
-                                 Bd43_sum >= 12 & Bd43_sum < 18 ~ 0,
-                                 Bd43_sum == 18 ~ 0,
-                                 TRUE ~ NA_real_))
+        mutate(socio_d_low = case_when(Bd43_sum < 12 ~ 1,
+                                       Bd43_sum >= 12 & Bd43_sum < 18 ~ 0,
+                                       Bd43_sum == 18 ~ 0,
+                                       TRUE ~ NA_real_))
+
+# recode_socio (3 groups) --------------------------------------------------
+
+# 3 groups (18, 12~18, <12)
+d <- d %>% 
+        # mutate(socio_sd = socio / sd(socio, na.rm = TRUE)) %>%
+        mutate(socio_d_medium = case_when(Bd43_sum < 12 ~ 0,
+                                          Bd43_sum >= 12 & Bd43_sum < 18 ~ 1,
+                                          Bd43_sum == 18 ~ 0,
+                                          TRUE ~ NA_real_))
 
 # desc_socio --------------------------------------------------------------
 
@@ -284,8 +295,6 @@ userfriendlyscience::freq(d$socio, nsmall = 2,
 
 # regression-1 ------------------------------------------------------------
 
-
-
 d1 <- d %>% 
         select(Bd26, Bd31, 
                Bd32, Bd35, Bd43_sum, 
@@ -296,25 +305,25 @@ d1 <- d %>%
         mutate_if(is.factor, as.numeric)
 
 # correlation matrix
-chart.Correlation(d1)
+# chart.Correlation(d1)
 
 # model -------------------------------------------------------------------
 # recode Ft9 --------------------------------------------------------------
-# dummy1
+# dummy1: father_mother
 d <- d %>% 
-        mutate(Ft9_dummy1 = case_when(Ft9 == 1 ~ 1, 
+        mutate(Ft9_d_father_mother = case_when(Ft9 == 1 ~ 1, 
                                         Ft9 == 2 ~ 0, 
                                         Ft9 == 3 ~ 0, 
                                         TRUE ~ NA_real_))
-userfriendlyscience::freq(d$Ft9_dummy1)
+userfriendlyscience::freq(d$Ft9_d_father_mother)
 
-# dummy2
+# dummy2: parents_father
 d <- d %>% 
-        mutate(Ft9_dummy2 = case_when(Ft9 == 1 ~ 0, 
+        mutate(Ft9_d_parents_father = case_when(Ft9 == 1 ~ 0, 
                                         Ft9 == 2 ~ 0, 
                                         Ft9 == 3 ~ 1, 
                                         TRUE ~ NA_real_))
-userfriendlyscience::freq(d$Ft9_dummy2)
+userfriendlyscience::freq(d$Ft9_d_parents_father)
 
 
 # recode Bd21 -------------------------------------------------------------
@@ -348,12 +357,28 @@ val_lab(d$Bd23_model) <- num_lab("
 # freq
 userfriendlyscience::freq(d$Bd23_model)
 
+# recode Bd43 -------------------------------------------------------------
+
+
 
 # model -------------------------------------------------------------------
+# 0
+d_model <- d %>% 
+        select(Ft9_d_father_mother, Ft9_d_parents_father, 
+               Bd21_model, Bd23_model, Ch4_aggressive_sum)
+# lm
+lm.full <- lm(Ch4_aggressive_sum ~ ., data = d_model)
+Anova(lm.full)
+summary(lm.full)
+lm.beta(lm.full)
 
-model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1, data = d)
-Anova(model0)
-summary(model0)
+# 1
+d_model <- d %>% 
+        select(Ft9_d_father_mother, Ft9_d_parents_father, 
+               Bd21_model, Bd23_model, socio_d_low, socio_d_medium, 
+               Ch4_aggressive_sum)
+summary(lm.full)
+lm.beta(lm.full)
 
 model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + Ft9_dummy2, data = d)
 Anova(model0)
