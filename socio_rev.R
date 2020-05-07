@@ -2,9 +2,9 @@
 # prep and options --------------------------------------------------------
 # rm
 rm(list = ls()); cat("\14")
-source("~/Github_CFRC/misc/func_ins.pack.R")
+source("~/Documents/Github/misc/func_ins.pack.R")
 # setwd
-setwd("d:/R_wd/")
+setwd("~/R_wd/")
 # option
 options(scipen = 999)
 # ins.pak
@@ -73,7 +73,9 @@ d <- df %>%
         # caregiver: parents(1), the father(2) and the mother(3)
         filter(Ft9 %in% c(1, 2, 3)) %>% 
         # respondent: the mother(1) and the father(2)
-        filter(Bd21 %in% c(1, 2))
+        filter(Bd21 %in% c(1, 2)) %>% 
+        # married
+        filter(Bd30 == 1)
 
 # desc_Ch4(CBCL) ----------------------------------------------------------
 
@@ -362,8 +364,8 @@ userfriendlyscience::freq(d$socio, nsmall = 2,
 # model -------------------------------------------------------------------
 # 1
 d_model1 <- d %>% 
-        # filter(socio == "低") %>% 
-        select(Ch4_aggressive_sum, Ft9, Bd21, Bd23, Bd35) %>% 
+        # filter(socio == "低") %>%
+        select(Ch4_aggressive_sum, Ft9, Bd23, Bd35, socio) %>% 
         na.omit()
 # lm
 lm.null <- lm(Ch4_aggressive_sum ~ 1, data = d_model1)
@@ -372,12 +374,13 @@ lm.full <- lm(Ch4_aggressive_sum ~ ., data = d_model1)
 forward.lm <- step(lm.null,  
                    scope = list(lower = lm.null, upper = lm.full), 
                    direction = "forward")
+userfriendlyscience::freq(d_model1$socio)
 summary(forward.lm)
 lm.beta(forward.lm)
 # model -------------------------------------------------------------------
 # 2
 d_model2 <- d %>% 
-        select(Ch4_soc_sum, Ft9, Bd21, socio, Bd23, Bd35) %>% 
+        select(Ch4_soc_sum, Ft9, socio, Bd23, Bd35) %>% 
         na.omit()
 # lm
 lm.null <- lm(Ch4_soc_sum ~ 1, data = d_model2)
@@ -391,7 +394,7 @@ lm.beta(forward.lm)
 # model -------------------------------------------------------------------
 # 3
 d_model3 <- d %>% 
-        select(Ch4_attention_sum, Ft9, Bd21, socio, Bd23, Bd35) %>% 
+        select(Ch4_attention_sum, Ft9, socio, Bd23, Bd35) %>% 
         na.omit()
 # lm
 lm.null <- lm(Ch4_attention_sum ~ 1, data = d_model3)
@@ -406,7 +409,7 @@ lm.beta(forward.lm)
 # model -------------------------------------------------------------------
 # 1
 d_model4 <- d %>% 
-        select(Ch4_withdrawal_sum, Ft9, Bd21, socio, Bd23, Bd35) %>% 
+        select(Ch4_withdrawal_sum, Ft9, socio, Bd23, Bd35) %>% 
         na.omit()
 # lm
 lm.null <- lm(Ch4_withdrawal_sum ~ 1, data = d_model4)
