@@ -2,9 +2,9 @@
 # prep and options --------------------------------------------------------
 # rm
 rm(list = ls()); cat("\14")
-source("~/Github/misc/func_ins.pack.R")
+source("~/Github_CFRC/misc/func_ins.pack.R")
 # setwd
-setwd("i:/R_wd/")
+setwd("d:/R_wd/")
 # option
 options(scipen = 999)
 # ins.pak
@@ -121,6 +121,9 @@ val_lab(d$Ft9) <- num_lab("
                         2 父親
                         3 母親
                         ")
+# factor
+d$Ft9 <- as.factor(d$Ft9)
+
 # freq
 userfriendlyscience::freq(d$Ft9, nsmall = 2, 
                           plot = TRUE, 
@@ -129,10 +132,15 @@ userfriendlyscience::freq(d$Ft9, nsmall = 2,
 # desc_Bd21 (respondant) --------------------------------------------------
 
 # label
+var_lab(d$Bd21) <- "填答者"
 val_lab(d$Bd21) <- num_lab("
                          1 母親
                          2 父親
                          ")
+
+# factor
+d$Bd21 <- as.factor(d$Bd21)
+
 # freq
 userfriendlyscience::freq(d$Bd21, nsmall = 2, 
                           plot = TRUE, 
@@ -141,10 +149,14 @@ userfriendlyscience::freq(d$Bd21, nsmall = 2,
 # desc_Bd23 (gender) ------------------------------------------------------
 
 # label
+var_lab(d$Bd21) <- "性別"
 val_lab(d$Bd23) <- num_lab("
                          1 女
                          2 男
                          ")
+# factor
+d$Bd23 <- as.factor(d$Bd23)
+
 # freq
 userfriendlyscience::freq(d$Bd23, nsmall = 2, 
                           plot = TRUE, 
@@ -161,6 +173,9 @@ val_lab(d$Bd26) <- num_lab("
                          5 碩士
                          6 博士
                          ")
+# factor
+d$Bd26 <- as.factor(d$Bd26)
+
 # freq
 userfriendlyscience::freq(d$Bd26, nsmall = 2, 
                           plot = TRUE, 
@@ -178,6 +193,9 @@ val_lab(d$Bd31) <- num_lab("
                          5 碩士
                          6 博士
                          ")
+# factor
+d$Bd31 <- as.factor(d$Bd31)
+
 # freq
 userfriendlyscience::freq(d$Bd31, nsmall = 2, 
                           plot = TRUE, 
@@ -197,6 +215,10 @@ val_lab(d$Bd27) <- num_lab("
                          8 其他，請說明
                          9 同時在職及家庭主婦 / 夫
                          ")
+
+# factor
+d$Bd27 <- as.factor(d$Bd27)
+
 # freq
 userfriendlyscience::freq(d$Bd27, nsmall = 2, 
                           plot = TRUE, 
@@ -217,6 +239,10 @@ val_lab(d$Bd32) <- num_lab("
                          8 其他，請說明
                          9 同時在職及家庭主婦 / 夫
                          ")
+
+# factor
+d$Bd32 <- as.factor(d$Bd32)
+
 # freq
 userfriendlyscience::freq(d$Bd32, nsmall = 2, 
                           plot = TRUE, 
@@ -226,6 +252,7 @@ userfriendlyscience::freq(d$Bd32, nsmall = 2,
 # desc_Bd35 (family income) -----------------------------------------------
 
 # label
+var_lab(d$Bd35) <- "家庭收入"
 val_lab(d$Bd35) <- num_lab("
                          1 少於30萬元
                          2 30~49萬元
@@ -245,12 +272,15 @@ userfriendlyscience::freq(d$Bd35, nsmall = 2,
                           plotTheme = theme_pubclean())
 
 # desc_grade (grade) ------------------------------------------------------
-
+var_lab(d$grade) <- "年級"
 val_lab(d$grade) <- num_lab("
                             1 一年級
                             3 三年級
                             5 五年級
                             ")
+# factor
+d$grade <- as.factor(d$grade)
+
 # freq
 userfriendlyscience::freq(d$grade, nsmall = 2, 
                           plot = TRUE, 
@@ -265,173 +295,125 @@ userfriendlyscience::freq(d$Bd43_sum, nsmall = 2,
                           plotTheme = theme_pubclean())
 
 
-# recode_socio (3 groups) --------------------------------------------------
+# desc_SF -----------------------------------------------------------------
 
-# 3 groups (18, 12~18, <12)
+var_lab(d$Sf) <- "家庭結構"
+val_lab(d$Sf) <- num_lab("  1 單親
+                            2 核心
+                            3 三代
+                            4 祖孫
+                            5 其他
+                            6 單親且同居
+                            ")
+# factor
+d$Sf <- as.factor(d$Sf) 
+# freq
+userfriendlyscience::freq(d$Sf, nsmall = 2, 
+                          plot = TRUE, 
+                          plotTheme = theme_pubclean())
+
+# recode live with others -------------------------------------------------
+
 d <- d %>% 
-        # mutate(socio_sd = socio / sd(socio, na.rm = TRUE)) %>%
-        mutate(socio_d_low = case_when(Bd43_sum < 12 ~ 1,
-                                       Bd43_sum >= 12 & Bd43_sum < 18 ~ 0,
-                                       Bd43_sum == 18 ~ 0,
+        mutate(with_others = case_when(Sf == 1 ~ 0, 
+                                       !(Sf == 1) ~ 1, 
                                        TRUE ~ NA_real_))
 
+var_lab(d$Sf) <- "與他人同住"
+val_lab(d$Sf) <- num_lab("  1 是
+                            0 否
+                            ")
+# factor
+d$with_others <- as.factor(d$with_others) 
+# freq
+userfriendlyscience::freq(d$with_others, nsmall = 2, 
+                          plot = TRUE, 
+                          plotTheme = theme_pubclean())
+
 # recode_socio (3 groups) --------------------------------------------------
 
 # 3 groups (18, 12~18, <12)
 d <- d %>% 
         # mutate(socio_sd = socio / sd(socio, na.rm = TRUE)) %>%
-        mutate(socio_d_medium = case_when(Bd43_sum < 12 ~ 0,
-                                          Bd43_sum >= 12 & Bd43_sum < 18 ~ 1,
-                                          Bd43_sum == 18 ~ 0,
-                                          TRUE ~ NA_real_))
+        mutate(socio = case_when(Bd43_sum < 12 ~ 1,
+                                 Bd43_sum >= 12 & Bd43_sum < 18 ~ 2,
+                                 Bd43_sum == 18 ~ 3,
+                                 TRUE ~ NA_real_))
+
 
 # desc_socio --------------------------------------------------------------
+
+var_lab(d$socio) <- "社會支持"
+val_lab(d$socio) <- num_lab("
+                            1 低
+                            2 中
+                            3 高
+                            ")
+# factor
+d$socio <- as.factor(d$socio)
 
 # freq
 userfriendlyscience::freq(d$socio, nsmall = 2, 
                           plot = TRUE, 
                           plotTheme = theme_pubclean())
 
-
-# regression-1 ------------------------------------------------------------
-
-d1 <- d %>% 
-        select(Bd26, Bd31, 
-               Bd32, Bd35, Bd43_sum, 
-               Ch4_aggressive_sum, 
-               Ch4_soc_sum, 
-               Ch4_attention_sum, 
-               Ch4_withdrawal_sum) %>% 
-        mutate_if(is.factor, as.numeric)
-
-# correlation matrix
-# chart.Correlation(d1)
+# chart.Correlation(d)
 
 # model -------------------------------------------------------------------
-# recode Ft9 --------------------------------------------------------------
-# dummy1: father_mother
-d <- d %>% 
-        mutate(Ft9_d_father_mother = case_when(Ft9 == 1 ~ 1, 
-                                        Ft9 == 2 ~ 0, 
-                                        Ft9 == 3 ~ 0, 
-                                        TRUE ~ NA_real_))
-userfriendlyscience::freq(d$Ft9_d_father_mother)
-
-# dummy2: parents_father
-d <- d %>% 
-        mutate(Ft9_d_parents_father = case_when(Ft9 == 1 ~ 0, 
-                                        Ft9 == 2 ~ 0, 
-                                        Ft9 == 3 ~ 1, 
-                                        TRUE ~ NA_real_))
-userfriendlyscience::freq(d$Ft9_d_parents_father)
-
-
-# recode Bd21 -------------------------------------------------------------
-
-d <- d %>% 
-        mutate(Bd21_model = case_when(Bd21 == 1 ~ 1, 
-                                      Bd21 == 2 ~ 0, 
-                                      TRUE ~ NA_real_))
-# labs
-var_lab(d$Bd21_model) <- "填答者"
-val_lab(d$Bd21_model) <- num_lab("
-                                 1 母親
-                                 0 父親
-                                 ")
-# freq
-userfriendlyscience::freq(d$Bd21_model)
-
-
-# recode Bd23 -------------------------------------------------------------
-
-d <- d %>% 
-        mutate(Bd23_model = case_when(Bd23 == 1 ~ 0, 
-                                      Bd23 == 2 ~ 1, 
-                                      TRUE ~ NA_real_))
-# labs
-var_lab(d$Bd23_model) <- "性別"
-val_lab(d$Bd23_model) <- num_lab("
-                                 1 男
-                                 0 女
-                                 ")
-# freq
-userfriendlyscience::freq(d$Bd23_model)
-
-# recode Bd43 -------------------------------------------------------------
-
-
-
-# model -------------------------------------------------------------------
-# 0
-d_model <- d %>% 
-        select(Ft9_d_father_mother, Ft9_d_parents_father, 
-               Bd21_model, Bd23_model, Ch4_aggressive_sum)
-# lm
-lm.full <- lm(Ch4_aggressive_sum ~ ., data = d_model)
-Anova(lm.full)
-summary(lm.full)
-lm.beta(lm.full)
-
 # 1
-d_model <- d %>% 
-        select(Ft9_d_father_mother, Ft9_d_parents_father, 
-               Bd21_model, Bd23_model, socio_d_low, socio_d_medium, 
-               Ch4_aggressive_sum)
-summary(lm.full)
-lm.beta(lm.full)
+d_model1 <- d %>% 
+        # filter(socio == "低") %>% 
+        select(Ch4_aggressive_sum, Ft9, Bd21, Bd23, Bd35) %>% 
+        na.omit()
+# lm
+lm.null <- lm(Ch4_aggressive_sum ~ 1, data = d_model1)
+lm.full <- lm(Ch4_aggressive_sum ~ ., data = d_model1)
 
-model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + Ft9_dummy2, data = d)
-Anova(model0)
-summary(model0)
+forward.lm <- step(lm.null,  
+                   scope = list(lower = lm.null, upper = lm.full), 
+                   direction = "forward")
+summary(forward.lm)
+lm.beta(forward.lm)
+# model -------------------------------------------------------------------
+# 2
+d_model2 <- d %>% 
+        select(Ch4_soc_sum, Ft9, Bd21, socio, Bd23, Bd35) %>% 
+        na.omit()
+# lm
+lm.null <- lm(Ch4_soc_sum ~ 1, data = d_model2)
+lm.full <- lm(Ch4_soc_sum ~ ., data = d_model2)
 
-model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + Ft9_dummy2 + 
-                     Bd21_model, data = d)
-Anova(model0)
-summary(model0)
+forward.lm <- step(lm.null,  
+                   scope = list(lower = lm.null, upper = lm.full), 
+                   direction = "both")
+summary(forward.lm)
+lm.beta(forward.lm)
+# model -------------------------------------------------------------------
+# 3
+d_model3 <- d %>% 
+        select(Ch4_attention_sum, Ft9, Bd21, socio, Bd23, Bd35) %>% 
+        na.omit()
+# lm
+lm.null <- lm(Ch4_attention_sum ~ 1, data = d_model3)
+lm.full <- lm(Ch4_attention_sum ~ ., data = d_model3)
 
-model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + Ft9_dummy2 + 
-                     Bd21_model + 
-                     Bd23_model, data = d)
-Anova(model0)
-summary(model0)
-lm.beta(model0)
+forward.lm <- step(lm.null,  
+                   scope = list(lower = lm.null, upper = lm.full), 
+                   direction = "forward")
+summary(forward.lm)
+lm.beta(forward.lm)
 
+# model -------------------------------------------------------------------
+# 1
+d_model4 <- d %>% 
+        select(Ch4_withdrawal_sum, Ft9, Bd21, socio, Bd23, Bd35) %>% 
+        na.omit()
+# lm
+lm.null <- lm(Ch4_withdrawal_sum ~ 1, data = d_model4)
+lm.full <- lm(Ch4_withdrawal_sum ~ ., data = d_model4)
 
-model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + Ft9_dummy2 + Bd21_model +
-                     Bd43_sum, data = d)
-model0 <- lm(Ch4_aggressive_sum ~  
-                     Bd43_sum, data = d)
-Anova(model0)
-summary(model0)
-lm.beta(model0)$standardized.coefficients
-vcov(model0)
-influence(model0)
-car::avPlots(model0)
-
-plot(model0)
-
-model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + 
-                     Bd21_model + 
-                     Bd23_model + 
-                     Bd43_sum, data = d)
-Anova(model0)
-summary(model0)
-lm.beta(model0)
-
-model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + 
-                     Bd21_model + 
-                     Bd23_model + 
-                     socio, data = d)
-Anova(model0)
-summary(model0)
-lm.beta(model0)
-
-model0 <- lm(Ch4_aggressive_sum ~ Ft9_dummy1 + 
-                     Bd21_model + 
-                     Bd23_model + 
-                     socio, data = d)
-Anova(model0)
-summary(model0)
-lm.beta(model0)
-
-
+forward.lm <- step(lm.null,  
+                   scope = list(lower = lm.null, upper = lm.full), 
+                   direction = "forward")
+summary(forward.lm)
+lm.beta(forward.lm)
