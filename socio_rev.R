@@ -2,9 +2,9 @@
 # prep and options --------------------------------------------------------
 # rm
 rm(list = ls()); cat("\14")
-source("~/Github_CFRC/misc/func_ins.pack.R")
+source("~/Github/misc/func_ins.pack.R")
 # setwd
-setwd("d:/R_wd/")
+setwd("i:/R_wd/")
 # option
 options(scipen = 999)
 # ins.pak
@@ -76,17 +76,28 @@ d <- df %>%
         filter(Bd21 %in% c(1, 2)) %>% 
         # married
         filter(Bd30 == 1)
+        # Bd34_sum < 12
+        # filter(Bd43_sum < 8)
 
 # desc_Ch4(CBCL) ----------------------------------------------------------
+
+var_lab(d$Ch4_aggressive_sum) <- "攻擊行為"
+var_lab(d$Ch4_soc_sum) <- "社交問題"
+var_lab(d$Ch4_attention_sum) <- "注意力問題"
+var_lab(d$Ch4_withdrawal_sum) <- "退縮"
 
 # select Ch4_
 d_ch4 <- d %>% 
         select(matches("^Ch4_.*_sum")) %>% 
         as.data.frame()
+
+
 # desc
 desc_ch4 <- stat.desc(d_ch4, desc = TRUE) %>% 
         round(2) %>% 
         .[-7, ]
+print(desc_ch4)
+
 # boxplot
 boxplot(d_ch4)
 
@@ -115,9 +126,7 @@ gridExtra::grid.arrange(p1, p2, p3, p4, nrow = 2)
 
 
 # desc_Ft9 (caregiver) ----------------------------------------------------
-
 # label
-var_lab(d$Ft9) <- "主要照顧者"
 val_lab(d$Ft9) <- num_lab("
                         1 父母
                         2 父親
@@ -125,6 +134,9 @@ val_lab(d$Ft9) <- num_lab("
                         ")
 # factor
 d$Ft9 <- as.factor(d$Ft9)
+
+# label
+var_lab(d$Ft9) <- "主要照顧者"
 
 # freq
 userfriendlyscience::freq(d$Ft9, nsmall = 2, 
@@ -142,7 +154,6 @@ val_lab(d$Bd21) <- num_lab("
 
 # factor
 d$Bd21 <- as.factor(d$Bd21)
-
 # freq
 userfriendlyscience::freq(d$Bd21, nsmall = 2, 
                           plot = TRUE, 
@@ -151,13 +162,15 @@ userfriendlyscience::freq(d$Bd21, nsmall = 2,
 # desc_Bd23 (gender) ------------------------------------------------------
 
 # label
-var_lab(d$Bd21) <- "性別"
 val_lab(d$Bd23) <- num_lab("
                          1 女
                          2 男
                          ")
 # factor
 d$Bd23 <- as.factor(d$Bd23)
+
+# label
+var_lab(d$Bd23) <- "性別"
 
 # freq
 userfriendlyscience::freq(d$Bd23, nsmall = 2, 
@@ -167,6 +180,7 @@ userfriendlyscience::freq(d$Bd23, nsmall = 2,
 # desc_Bd26 (edu) ---------------------------------------------------------
 
 # label
+var_lab(d$Bd26) <- "教育程度"
 val_lab(d$Bd26) <- num_lab("
                          1 國中及以下
                          2 高中（職）
@@ -176,7 +190,7 @@ val_lab(d$Bd26) <- num_lab("
                          6 博士
                          ")
 # factor
-d$Bd26 <- as.factor(d$Bd26)
+# d$Bd26 <- as.factor(d$Bd26)
 
 # freq
 userfriendlyscience::freq(d$Bd26, nsmall = 2, 
@@ -187,6 +201,7 @@ userfriendlyscience::freq(d$Bd26, nsmall = 2,
 # desc_Bd31 (spouse edu) --------------------------------------------------
 
 # label
+var_lab(d$Bd31) <- "配偶教育程度"
 val_lab(d$Bd31) <- num_lab("
                          1 國中及以下
                          2 高中（職）
@@ -254,7 +269,6 @@ userfriendlyscience::freq(d$Bd32, nsmall = 2,
 # desc_Bd35 (family income) -----------------------------------------------
 
 # label
-var_lab(d$Bd35) <- "家庭收入"
 val_lab(d$Bd35) <- num_lab("
                          1 少於30萬元
                          2 30~49萬元
@@ -268,13 +282,16 @@ val_lab(d$Bd35) <- num_lab("
                          10 200~249萬元
                          11 250萬元以上
                          ")
+# label
+var_lab(d$Bd35) <- "家庭收入"
+
 # freq
 userfriendlyscience::freq(d$Bd35, nsmall = 2, 
                           plot = TRUE, 
                           plotTheme = theme_pubclean())
 
 # desc_grade (grade) ------------------------------------------------------
-var_lab(d$grade) <- "年級"
+# label
 val_lab(d$grade) <- num_lab("
                             1 一年級
                             3 三年級
@@ -282,6 +299,9 @@ val_lab(d$grade) <- num_lab("
                             ")
 # factor
 d$grade <- as.factor(d$grade)
+
+# label
+var_lab(d$grade) <- "年級"
 
 # freq
 userfriendlyscience::freq(d$grade, nsmall = 2, 
@@ -291,6 +311,9 @@ userfriendlyscience::freq(d$grade, nsmall = 2,
 
 # desc_Bd43 (ISEL) --------------------------------------------------------
 # Interpersonal Support Evaluation scale
+
+# label
+var_lab(d$Bd43_sum) <- "社會支持總分"
 # freq
 userfriendlyscience::freq(d$Bd43_sum, nsmall = 2, 
                           plot = TRUE, 
@@ -299,7 +322,6 @@ userfriendlyscience::freq(d$Bd43_sum, nsmall = 2,
 
 # desc_SF -----------------------------------------------------------------
 
-var_lab(d$Sf) <- "家庭結構"
 val_lab(d$Sf) <- num_lab("  1 單親
                             2 核心
                             3 三代
@@ -309,10 +331,19 @@ val_lab(d$Sf) <- num_lab("  1 單親
                             ")
 # factor
 d$Sf <- as.factor(d$Sf) 
+
+var_lab(d$Sf) <- "家庭結構"
+
 # freq
 userfriendlyscience::freq(d$Sf, nsmall = 2, 
                           plot = TRUE, 
                           plotTheme = theme_pubclean())
+
+
+# desc_realage ------------------------------------------------------------
+
+# label
+var_lab(d$realage) <- "實際年齡"
 
 # recode live with others -------------------------------------------------
 
@@ -320,13 +351,14 @@ d <- d %>%
         mutate(with_others = case_when(Sf == 1 ~ 0, 
                                        !(Sf == 1) ~ 1, 
                                        TRUE ~ NA_real_))
-
-var_lab(d$Sf) <- "與他人同住"
-val_lab(d$Sf) <- num_lab("  1 是
-                            0 否
-                            ")
+val_lab(d$with_others) <- num_lab("
+                                        1 是
+                                        0 否
+                                  ")
 # factor
 d$with_others <- as.factor(d$with_others) 
+# label
+var_lab(d$with_others) <- "與他人同住"
 # freq
 userfriendlyscience::freq(d$with_others, nsmall = 2, 
                           plot = TRUE, 
@@ -344,8 +376,7 @@ d <- d %>%
 
 
 # desc_socio --------------------------------------------------------------
-
-var_lab(d$socio) <- "社會支持"
+# label
 val_lab(d$socio) <- num_lab("
                             1 低
                             2 中
@@ -353,6 +384,8 @@ val_lab(d$socio) <- num_lab("
                             ")
 # factor
 d$socio <- as.factor(d$socio)
+# label
+var_lab(d$socio) <- "社會支持(低中高)"
 
 # freq
 userfriendlyscience::freq(d$socio, nsmall = 2, 
@@ -361,62 +394,105 @@ userfriendlyscience::freq(d$socio, nsmall = 2,
 
 # chart.Correlation(d)
 
+
+# recode income -----------------------------------------------------------
+
+d <- d %>% 
+        mutate(income = case_when(Bd35 <= 5 ~ 0, 
+                                  Bd35 > 5 ~ 1, 
+                                  TRUE ~ NA_real_))
+val_lab(d$income) <- num_lab("
+                            0 低
+                            1 高
+                            ")
+d$income <- as.factor(d$income)
+var_lab(d$income) <- "家庭收入"
+userfriendlyscience::freq(d$income, plot = TRUE)
+
+
 # model -------------------------------------------------------------------
-# 1
+# aggressive
 d_model1 <- d %>% 
         # filter(socio == "低") %>%
-        select(Ch4_aggressive_sum, Ft9, Bd23, Bd35, socio) %>% 
-        na.omit()
-# lm
-lm.null <- lm(Ch4_aggressive_sum ~ 1, data = d_model1)
-lm.full <- lm(Ch4_aggressive_sum ~ ., data = d_model1)
-
+        select(Ch4_aggressive_sum, Ft9, Bd23, Bd35, realage, Bd43_sum, Bd26) %>% 
+        na.omit() %>% 
+        as.data.frame()
+# lm.null
+lm.null <- use_labels(d_model1, lm(Ch4_aggressive_sum ~ 1))
+# lm.full
+lm.full <- use_labels(d_model1, lm(Ch4_aggressive_sum ~ Ft9 + Bd23 + 
+                                           Bd35 + realage + 
+                                           Bd43_sum + Bd26))
+# stepwise forward
 forward.lm <- step(lm.null,  
                    scope = list(lower = lm.null, upper = lm.full), 
                    direction = "forward")
-userfriendlyscience::freq(d_model1$socio)
-summary(forward.lm)
-lm.beta(forward.lm)
-# model -------------------------------------------------------------------
-# 2
-d_model2 <- d %>% 
-        select(Ch4_soc_sum, Ft9, socio, Bd23, Bd35) %>% 
-        na.omit()
-# lm
-lm.null <- lm(Ch4_soc_sum ~ 1, data = d_model2)
-lm.full <- lm(Ch4_soc_sum ~ ., data = d_model2)
-
-forward.lm <- step(lm.null,  
-                   scope = list(lower = lm.null, upper = lm.full), 
-                   direction = "both")
-summary(forward.lm)
-lm.beta(forward.lm)
-# model -------------------------------------------------------------------
-# 3
-d_model3 <- d %>% 
-        select(Ch4_attention_sum, Ft9, socio, Bd23, Bd35) %>% 
-        na.omit()
-# lm
-lm.null <- lm(Ch4_attention_sum ~ 1, data = d_model3)
-lm.full <- lm(Ch4_attention_sum ~ ., data = d_model3)
-
-forward.lm <- step(lm.null,  
-                   scope = list(lower = lm.null, upper = lm.full), 
-                   direction = "forward")
+# summary
 summary(forward.lm)
 lm.beta(forward.lm)
 
 # model -------------------------------------------------------------------
-# 1
-d_model4 <- d %>% 
-        select(Ch4_withdrawal_sum, Ft9, socio, Bd23, Bd35) %>% 
-        na.omit()
-# lm
-lm.null <- lm(Ch4_withdrawal_sum ~ 1, data = d_model4)
-lm.full <- lm(Ch4_withdrawal_sum ~ ., data = d_model4)
-
+# soc
+d_model1 <- d %>% 
+        # filter(socio == "低") %>%
+        select(Ch4_soc_sum, Ft9, Bd23, Bd35, realage, Bd43_sum, Bd26) %>% 
+        na.omit() %>% 
+        as.data.frame()
+# lm.null
+lm.null <- use_labels(d_model1, lm(Ch4_soc_sum ~ 1))
+# lm.full
+lm.full <- use_labels(d_model1, lm(Ch4_soc_sum ~ Ft9 + Bd23 + 
+                                           Bd35 + realage + 
+                                           Bd43_sum + Bd26))
+# stepwise forward
 forward.lm <- step(lm.null,  
                    scope = list(lower = lm.null, upper = lm.full), 
                    direction = "forward")
+# summary
+summary(forward.lm)
+lm.beta(forward.lm)
+
+
+
+
+# model -------------------------------------------------------------------
+# attetion
+d_model1 <- d %>% 
+        # filter(socio == "低") %>%
+        select(Ch4_attention_sum, Ft9, Bd23, Bd35, realage, Bd43_sum, Bd26) %>% 
+        na.omit() %>% 
+        as.data.frame()
+# lm.null
+lm.null <- use_labels(d_model1, lm(Ch4_attention_sum ~ 1))
+# lm.full
+lm.full <- use_labels(d_model1, lm(Ch4_attention_sum ~ Ft9 + Bd23 + 
+                                           Bd35 + realage + 
+                                           Bd43_sum + Bd26))
+# stepwise forward
+forward.lm <- step(lm.null,  
+                   scope = list(lower = lm.null, upper = lm.full), 
+                   direction = "forward")
+# summary
+summary(forward.lm)
+lm.beta(forward.lm)
+
+# model -------------------------------------------------------------------
+# withdrawal
+d_model1 <- d %>% 
+        # filter(socio == "低") %>%
+        select(Ch4_withdrawal_sum, Ft9, Bd23, Bd35, realage, Bd43_sum, Bd26) %>% 
+        na.omit() %>% 
+        as.data.frame()
+# lm.null
+lm.null <- use_labels(d_model1, lm(Ch4_withdrawal_sum ~ 1))
+# lm.full
+lm.full <- use_labels(d_model1, lm(Ch4_withdrawal_sum ~ Ft9 + Bd23 + 
+                                           Bd35 + realage + 
+                                           Bd43_sum + Bd26))
+# stepwise forward
+forward.lm <- step(lm.null,  
+                   scope = list(lower = lm.null, upper = lm.full), 
+                   direction = "forward")
+# summary
 summary(forward.lm)
 lm.beta(forward.lm)
