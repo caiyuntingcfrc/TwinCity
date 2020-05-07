@@ -2,9 +2,9 @@
 # prep and options --------------------------------------------------------
 # rm
 rm(list = ls()); cat("\14")
-source("~/Documents/Github/misc/func_ins.pack.R")
+source("~/Github_CFRC/misc/func_ins.pack.R")
 # setwd
-setwd("~/R_wd/")
+setwd("d:/R_wd/")
 # option
 options(scipen = 999)
 # ins.pak
@@ -67,8 +67,8 @@ df <- read_feather("Twin Cities Data/tp_all.feather")
 
 # desc_filter -------------------------------------------------------------
 
-# filter Ft9, Bd21
-# n: 5666
+# filter Ft9, Bd21, Bd30
+# n: 5129
 d <- df %>% 
         # caregiver: parents(1), the father(2) and the mother(3)
         filter(Ft9 %in% c(1, 2, 3)) %>% 
